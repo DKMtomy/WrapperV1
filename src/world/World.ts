@@ -14,7 +14,15 @@ import {
     ContainerSlot,
     Vector2,
     ItemStack,
-    ItemComponent
+    ItemComponent,
+    WorldBeforeEvents,
+    WorldAfterEvents,
+    Scoreboard,
+    EntityQueryOptions,
+    MusicOptions,
+    WorldSoundOptions,
+    RawMessage,
+    TimeOfDay
 } from '@minecraft/server';
 
 import { Vec3 } from '../vector/index';
@@ -33,6 +41,10 @@ export class world {
     constructor(IWorld: IWorld) {
         this._IWorld = IWorld;
     }
+
+    readonly beforeEvents: WorldBeforeEvents;
+    readonly afterEvents: WorldAfterEvents;
+    readonly scoreboard: Scoreboard;
 
     /**
      * better explosion | give player credit, better damage adjustment, and knockback adjustment and it does break blocks
@@ -91,5 +103,85 @@ export class world {
     //copy all methods and properties from IWorld
     public get IWorld(): IWorld {
         return this._IWorld;
+    }
+
+    public broadcastClientMessage(id: string, value: string): void {
+        this._IWorld.broadcastClientMessage(id, value);
+    }
+
+    public getAbsoluteTime(): number {
+        return this._IWorld.getAbsoluteTime();
+    }
+
+    public getAllPlayers(): Player[] {
+        return this._IWorld.getAllPlayers().map(player => new Player(player));
+    }
+
+    public getDay(): number {
+        return this._IWorld.getDay();
+    }
+
+    public getDefaultSpawnLocation(): Vector3 {
+        return this._IWorld.getDefaultSpawnLocation();
+    }
+
+    public getDimension(dimensionId: string): Dimension {
+        return this._IWorld.getDimension(dimensionId);
+    }
+
+    public getDynamicProperty(identifier: string): boolean | number | string | undefined {
+        return this._IWorld.getDynamicProperty(identifier);
+    }
+
+    public getEntity(id: string): Entity | undefined {
+        return this._IWorld.getEntity(id);
+    }
+
+    public getPlayers(options?: EntityQueryOptions): Player[] {
+        return this._IWorld.getPlayers(options).map(player => new Player(player));
+    }
+
+    public getTimeOfDay(): number {
+        return this._IWorld.getTimeOfDay();
+    }
+
+    public playMusic(trackID: string, musicOptions?: MusicOptions): void {
+        this._IWorld.playMusic(trackID, musicOptions);
+    }
+
+    public playSound(soundID: string, location: Vector3, soundOptions?: WorldSoundOptions): void {
+        this._IWorld.playSound(soundID, location, soundOptions);
+    }
+
+    public queueMusic(trackID: string, musicOptions?: MusicOptions): void {
+        this._IWorld.queueMusic(trackID, musicOptions);
+    }
+
+    public removeDynamicProperty(identifier: string): boolean {
+        return this._IWorld.removeDynamicProperty(identifier);
+    }
+
+    public sendMessage(message: (RawMessage | string)[] | RawMessage | string): void {
+        this._IWorld.sendMessage(message);
+    }
+
+    public setAbsoluteTime(absoluteTime: number): void {
+        this._IWorld.setAbsoluteTime(absoluteTime);
+    }
+
+    public setDefaultSpawnLocation(spawnLocation: Vector3): void {
+        this._IWorld.setDefaultSpawnLocation(spawnLocation);
+    }
+
+    public setDynamicProperty(identifier: string, value: boolean | number | string): void {
+        this._IWorld.setDynamicProperty(identifier, value);
+    }
+
+    public setTimeOfDay(timeOfDay: number | TimeOfDay): void {
+        this._IWorld.setTimeOfDay(timeOfDay);
+    }
+
+    public stopMusic(): void {
+        this._IWorld.stopMusic();
     }
 }

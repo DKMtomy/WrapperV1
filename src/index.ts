@@ -6,6 +6,6 @@ import { Player } from './player/index';
 
 const customWorld = new CustomWorld(MinecraftWorld);
 
-customWorld.IWorld.afterEvents.chatSend.subscribe((event) => {
-    console.warn("aaa");
+customWorld.afterEvents.chatSend.subscribe(event => {
+    console.warn('aaa');
 });

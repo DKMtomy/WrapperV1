@@ -392,38 +392,70 @@ export class Entity {
         return item;
     }
 
+    /**
+     * Returns the location of the entity as a Vec3 object.
+     * @returns {Vec3} The location of the entity.
+     */
     public get entityLocation(): Vec3 {
         return Vec3.from(this._IEntity.location);
     }
 
+    /**
+     * Returns the direction the entity is facing as a Vec3 object.
+     * @returns {Vec3} The direction the entity is facing.
+     */
     public getViewDirection(): Vec3 {
         return Vec3.from(this._IEntity.getViewDirection());
     }
 
+    /**
+     * Returns whether the entity is currently on fire.
+     * @returns {boolean} Whether the entity is on fire.
+     */
     public get isBurning(): boolean {
         return this._IEntity.hasComponent(EntityOnFireComponent.componentId);
     }
 
+    /**
+     * Returns the inventory of the entity as an EntityInventoryComponent object.
+     * @returns {EntityInventoryComponent} The inventory of the entity.
+     */
     public get inventory(): EntityInventoryComponent {
         return this._IEntity.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent;
     }
 
+    /**
+     * Returns the container of the entity as a Container object.
+     * @returns {Container} The container of the entity.
+     */
     public get container(): Container {
         const I = this._IEntity.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent;
 
         return I.container;
     }
 
+    /**
+     * Returns the equipment inventory of the entity as an EntityEquipmentInventoryComponent object.
+     * @returns {EntityEquipmentInventoryComponent} The equipment inventory of the entity.
+     */
     public get equipment(): EntityEquipmentInventoryComponent {
         return this._IEntity.getComponent(
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
     }
 
+    /**
+     * Returns the item in the main hand of the entity as an ItemStack object.
+     * @returns {ItemStack} The item in the main hand of the entity.
+     */
     public get mainhandItem(): ItemStack {
         return this.equipment.getEquipment(EquipmentSlot.mainhand);
     }
 
+    /**
+     * Sets the item in the main hand of the entity to the specified item.
+     * @param {ItemStack | ContainerSlot} item - The item to set in the main hand of the entity.
+     */
     public set mainhandItem(item: ItemStack | ContainerSlot) {
         const inv = this._IEntity.getComponent(
             EntityEquipmentInventoryComponent.componentId
@@ -432,6 +464,10 @@ export class Entity {
         inv.setEquipment(EquipmentSlot.mainhand, item instanceof ContainerSlot ? item.getItem() : item);
     }
 
+    /**
+     * Returns the item in the off hand of the entity as an ItemStack object.
+     * @returns {ItemStack} The item in the off hand of the entity.
+     */
     get offhandItem(): ItemStack {
         const inv = this._IEntity.getComponent(
             EntityEquipmentInventoryComponent.componentId
@@ -440,6 +476,10 @@ export class Entity {
         return inv.getEquipment(EquipmentSlot.offhand);
     }
 
+    /**
+     * Sets the item in the off hand of the entity to the specified item.
+     * @param {ItemStack | ContainerSlot} item - The item to set in the off hand of the entity.
+     */
     set offhandItem(item: ItemStack | ContainerSlot) {
         const inv = this._IEntity.getComponent(
             EntityEquipmentInventoryComponent.componentId
@@ -448,6 +488,10 @@ export class Entity {
         inv.setEquipment(EquipmentSlot.offhand, item instanceof ContainerSlot ? item.getItem() : item);
     }
 
+    /**
+     * Returns the container slot of the off hand of the entity as a ContainerSlot object.
+     * @returns {ContainerSlot} The container slot of the off hand of the entity.
+     */
     get offhandSlot(): ContainerSlot {
         const inv = this._IEntity.getComponent(
             EntityEquipmentInventoryComponent.componentId
@@ -456,12 +500,23 @@ export class Entity {
         return inv.getEquipmentSlot(EquipmentSlot.offhand);
     }
 
+    /**
+     * Returns the equipment inventory of the entity as an EntityEquipmentInventoryComponent object.
+     * @returns {EntityEquipmentInventoryComponent} The equipment inventory of the entity.
+     */
     public getInventoryEquipment(): EntityEquipmentInventoryComponent {
         if (!this._IEntity.hasComponent('equipment_inventory')) return;
 
         return this._IEntity.getComponent('equipment_inventory') as EntityEquipmentInventoryComponent;
     }
 
+    /**
+     * Throws an entity of the specified type ID with the specified speed and spread.
+     * @param {string} entityTypeIdThrowable - The type ID of the entity to throw.
+     * @param {number} speedScale - The speed at which to throw the entity.
+     * @param {number} spreadFactor - The spread factor of the entity.
+     * @returns {IEntity} The thrown entity.
+     */
     public throwEntity(entityTypeIdThrowable: string, speedScale: number = 1, spreadFactor: number = 0): IEntity {
         let head = undefined;
 
