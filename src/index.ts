@@ -12,3 +12,12 @@ client.beforeEvents.itemUse.subscribe(event => {
 
     event.log()
 })
+
+client.afterEvents.chatSend.subscribe(event => {
+
+    if (!(event.sender instanceof Player)) return;
+
+    event.sender.sendMessage("this worked!!!")
+
+    event.afterEvent()
+})

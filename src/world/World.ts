@@ -28,7 +28,7 @@ import {
 
 import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
-import { MinecraftBeforeEvents } from '../test/test';
+import { MinecraftAfterEvents, MinecraftBeforeEvents } from '../test/test';
 
 type PropertyValue = boolean | number | string | undefined;
 
@@ -42,12 +42,16 @@ export class Client {
 
     public beforeEvents: MinecraftBeforeEvents;
 
+    public afterEvents: MinecraftAfterEvents;
+
     // public beforeEvents: WorldBeforeEvents
 
     constructor() {
         this._IWorld = MinecraftWorld;
 
         this.beforeEvents = new MinecraftBeforeEvents(this._IWorld.beforeEvents);
+
+        this.afterEvents = new MinecraftAfterEvents(this._IWorld.afterEvents);
 
         // this.beforeEvents = this._IWorld.beforeEvents;
     }
@@ -104,11 +108,6 @@ export class Client {
                 if (source === undefined) entity.runCommand(`damage @s ${damageAmount} entity_explosion`);
             }
         }
-    }
-
-    // Expose 'afterEvents' as a property on WorldWrapper
-    get afterEvents(): WorldAfterEvents {
-        return this._IWorld.afterEvents;
     }
 
     // Expose 'scoreboard' as a property on WorldWrapper
