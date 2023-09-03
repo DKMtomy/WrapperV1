@@ -1,52 +1,93 @@
-import { ChatSendBeforeEvent, WorldBeforeEvents } from '@minecraft/server';
+import {
+    ItemStack,
+    ItemUseBeforeEvent,
+    ItemUseOnBeforeEvent,
+    WorldBeforeEvents,
+    Player as IPlayer,
+    Entity as IEntity
+} from '@minecraft/server';
 import { Player } from '../player/index';
+import { Entity } from '../entity/index';
 
-export class MyWorldBeforeEvents {
-    private originalEvents: WorldBeforeEvents;
+type EventCallback<T> = (arg: T) => void;
 
-    constructor(originalEvents: WorldBeforeEvents) {
-        this.originalEvents = originalEvents;
+export class EventSubscription<T> {
+    private subscribers: ((event: T) => void)[] = [];
+
+    subscribe(callback: (event: T) => void): void {
+        this.subscribers.push(callback);
     }
 
-    subscribeChatSend(callback: (event: MyChatSendBeforeEvent) => void) {
-        this.originalEvents.chatSend.subscribe(originalEvent => {
-            const myEvent = new MyChatSendBeforeEvent(originalEvent);
-            callback(myEvent);
-        });
+    unsubscribe(callback: (event: T) => void): void {
+        const index = this.subscribers.indexOf(callback);
+        if (index > -1) {
+            this.subscribers.splice(index, 1);
+        }
+    }
+
+    emit(event: T): void {
+        this.subscribers.forEach(callback => callback(event));
     }
 }
 
-export class MyChatSendBeforeEvent {
-    private originalEvent: ChatSendBeforeEvent;
+export class MinecraftBeforeEvents {
+    public itemUse = new EventSubscription<MinecraftItemUseEvent>();
+    public itemUseOn = new EventSubscription<MinecraftItemUseOnEvent>();
+    // ... define other event types here
 
-    constructor(originalEvent: ChatSendBeforeEvent) {
+    constructor(originalEvents: WorldBeforeEvents) {
+        // Subscribe to the original Minecraft events and link them to your custom events
+
+        originalEvents.itemUse.subscribe(originalEvent => {
+            const customEvent = new MinecraftItemUseEvent(originalEvent);
+            this.itemUse.emit(customEvent);
+        });
+
+        originalEvents.itemUseOn.subscribe(originalEvent => {
+            const customEvent = new MinecraftItemUseOnEvent(originalEvent);
+            this.itemUseOn.emit(customEvent);
+        });
+
+        // ... Initialize other original Minecraft events here
+    }
+}
+
+export class MinecraftItemUseOnEvent {
+    private originalEvent: ItemUseOnBeforeEvent;
+
+    constructor(originalEvent: ItemUseOnBeforeEvent) {
         this.originalEvent = originalEvent;
     }
 
-    get message(): string {
-        console.warn(this.originalEvent.message);
-        return this.originalEvent.message;
+    set cancel(bool: boolean) {
+        this.originalEvent.cancel = bool;
+    }
+}
+
+export class MinecraftItemUseEvent {
+    private originalEvent: ItemUseBeforeEvent;
+
+    constructor(originalEvent: ItemUseBeforeEvent) {
+        this.originalEvent = originalEvent;
     }
 
-    set message(newMessage: string) {
-        this.originalEvent.message = newMessage;
+    set cancel(bool: boolean) {
+        this.originalEvent.cancel = bool;
     }
 
-    get sender(): Player {
-        return new Player(this.originalEvent.sender);
+    get itemStack(): ItemStack {
+        return this.originalEvent.itemStack;
     }
 
-    get sendToTargets(): boolean {
-        return this.originalEvent.sendToTargets;
+    get source(): Player | Entity {
+        if (!(this.originalEvent.source instanceof IPlayer)) {
+            return new Entity(this.originalEvent.source);
+        }
+
+        return new Player(this.originalEvent.source);
     }
 
-    test(): void {
-        this.sender.sendMessage('it works lmfao');
+    public log(): void {
+        console.warn("This is a test, event successfully fired!");
     }
-
-    getTargets(): Player[] {
-        return this.originalEvent.getTargets().map(player => new Player(player));
-    }
-
-    // ... other properties and methods
 }

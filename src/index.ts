@@ -1,15 +1,14 @@
-import { world as MinecraftWorld } from '@minecraft/server';
-
-import { world as CustomWorld } from './world/index';
-import { Entity } from './entity/index';
 import { Player } from './player/index';
+import { Client } from './world/index';
 
-const customWorld = new CustomWorld(MinecraftWorld);
+const client = new Client()
 
-customWorld.afterEvents.chatSend.subscribe(event => {
-    console.warn('aaa');
-});
+client.beforeEvents.itemUse.subscribe(event => {
+    event.cancel = true;
 
-customWorld.beforeEvents.subscribeChatSend(event => {
-    event.test();
-});
+    if (!(event.source instanceof Player)) return;
+
+    event.source.sendMessage("this worked!!!")
+
+    event.log()
+})

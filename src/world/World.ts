@@ -9,6 +9,7 @@ import {
     CommandResult,
     Vector3,
     Dimension,
+    world as MinecraftWorld ,
     EntityEquipmentInventoryComponent,
     EquipmentSlot,
     ContainerSlot,
@@ -27,11 +28,11 @@ import {
 
 import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
-import { MyWorldBeforeEvents } from '../test/test';
+import { MinecraftBeforeEvents } from '../test/test';
 
 type PropertyValue = boolean | number | string | undefined;
 
-export class world {
+export class Client {
     [key: string]: any;
 
     /**
@@ -39,8 +40,16 @@ export class world {
      */
     protected readonly _IWorld: IWorld;
 
-    constructor(IWorld: IWorld) {
-        this._IWorld = IWorld;
+    public beforeEvents: MinecraftBeforeEvents;
+
+    // public beforeEvents: WorldBeforeEvents
+
+    constructor() {
+        this._IWorld = MinecraftWorld;
+
+        this.beforeEvents = new MinecraftBeforeEvents(this._IWorld.beforeEvents);
+
+        // this.beforeEvents = this._IWorld.beforeEvents;
     }
 
     /**
@@ -100,11 +109,6 @@ export class world {
     // Expose 'afterEvents' as a property on WorldWrapper
     get afterEvents(): WorldAfterEvents {
         return this._IWorld.afterEvents;
-    }
-
-    // Expose 'beforeEvents' as a property on WorldWrapper
-    get beforeEvents(): MyWorldBeforeEvents {
-        return new MyWorldBeforeEvents(this._IWorld.beforeEvents);
     }
 
     // Expose 'scoreboard' as a property on WorldWrapper
