@@ -27,6 +27,7 @@ import {
 
 import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
+import { MyWorldBeforeEvents } from '../test/test';
 
 type PropertyValue = boolean | number | string | undefined;
 
@@ -41,10 +42,6 @@ export class world {
     constructor(IWorld: IWorld) {
         this._IWorld = IWorld;
     }
-
-    readonly beforeEvents: WorldBeforeEvents;
-    readonly afterEvents: WorldAfterEvents;
-    readonly scoreboard: Scoreboard;
 
     /**
      * better explosion | give player credit, better damage adjustment, and knockback adjustment and it does break blocks
@@ -98,6 +95,21 @@ export class world {
                 if (source === undefined) entity.runCommand(`damage @s ${damageAmount} entity_explosion`);
             }
         }
+    }
+
+    // Expose 'afterEvents' as a property on WorldWrapper
+    get afterEvents(): WorldAfterEvents {
+        return this._IWorld.afterEvents;
+    }
+
+    // Expose 'beforeEvents' as a property on WorldWrapper
+    get beforeEvents(): MyWorldBeforeEvents {
+        return new MyWorldBeforeEvents(this._IWorld.beforeEvents);
+    }
+
+    // Expose 'scoreboard' as a property on WorldWrapper
+    get scoreboard(): Scoreboard {
+        return this._IWorld.scoreboard;
     }
 
     //copy all methods and properties from IWorld

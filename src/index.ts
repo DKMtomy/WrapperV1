@@ -9,3 +9,7 @@ const customWorld = new CustomWorld(MinecraftWorld);
 customWorld.afterEvents.chatSend.subscribe(event => {
     console.warn('aaa');
 });
+
+customWorld.beforeEvents.subscribeChatSend(event => {
+    event.test();
+});

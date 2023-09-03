@@ -16,7 +16,11 @@ import {
     ItemComponent,
     Player as IPlayer,
     Entity as IEntity,
-    Container
+    Container,
+    ScreenDisplay,
+    DimensionLocation,
+    PlayerSoundOptions,
+    RawMessage
 } from '@minecraft/server';
 
 import { Entity } from '../entity/index';
@@ -38,6 +42,98 @@ export class Player extends Entity {
     constructor(IPlayer: IPlayer) {
         super(IPlayer);
         this._IPlayer = IPlayer;
+    }
+
+    public get isFlying(): boolean {
+        return this._IPlayer.isFlying;
+    }
+
+    public get isGliding(): boolean {
+        return this._IPlayer.isGliding;
+    }
+
+    public get isJumping(): boolean {
+        return this._IPlayer.isJumping;
+    }
+
+    public get level(): number {
+        return this._IPlayer.level;
+    }
+
+    public get name(): string {
+        return this._IPlayer.name;
+    }
+
+    public get onScreenDisplay(): ScreenDisplay {
+        return this._IPlayer.onScreenDisplay;
+    }
+
+    public get selectedSlot(): number {
+        return this._IPlayer.selectedSlot;
+    }
+
+    public set selectedSlot(slot: number) {
+        this._IPlayer.selectedSlot = slot;
+    }
+
+    public get totalXpNeededForNextLevel(): number {
+        return this._IPlayer.totalXpNeededForNextLevel;
+    }
+
+    public get xpEarnedAtCurrentLevel(): number {
+        return this._IPlayer.xpEarnedAtCurrentLevel;
+    }
+
+    public addExperience(amount: number): number {
+        return this._IPlayer.addExperience(amount);
+    }
+
+    public addLevels(amount: number): number {
+        return this._IPlayer.addLevels(amount);
+    }
+
+    public getItemCooldown(itemCategory: string): number {
+        return this._IPlayer.getItemCooldown(itemCategory);
+    }
+
+    public getSpawnPoint(): DimensionLocation | undefined {
+        return this._IPlayer.getSpawnPoint();
+    }
+
+    public getTotalXp(): number {
+        return this._IPlayer.getTotalXp();
+    }
+
+    public isOp(): boolean {
+        return this._IPlayer.isOp();
+    }
+
+    public playSound(soundID: string, soundOptions?: PlayerSoundOptions): void {
+        this._IPlayer.playSound(soundID, soundOptions);
+    }
+
+    public postClientMessage(id: string, value: string): void {
+        this._IPlayer.postClientMessage(id, value);
+    }
+
+    public resetLevel(): void {
+        this._IPlayer.resetLevel();
+    }
+
+    public sendMessage(message: (RawMessage | string)[] | RawMessage | string): void {
+        this._IPlayer.sendMessage(message);
+    }
+
+    public setOp(isOp: boolean): void {
+        this._IPlayer.setOp(isOp);
+    }
+
+    public setSpawnPoint(spawnPoint?: DimensionLocation): void {
+        this._IPlayer.setSpawnPoint(spawnPoint);
+    }
+
+    public startItemCooldown(itemCategory: string, tickDuration: number): void {
+        this._IPlayer.startItemCooldown(itemCategory, tickDuration);
     }
 
     /**
