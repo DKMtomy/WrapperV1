@@ -336,7 +336,7 @@ export class Entity {
      * @param amplifier Amplifier of effect.
      * @returns
      */
-    public addEffect(effect: EffectType, duration: number, amplifier?: number, showParticles?: boolean): void {
+    public addEffect(effect: string, duration: number, amplifier?: number, showParticles?: boolean): void {
         return this._IEntity.addEffect(effect, duration, {
             amplifier,
             showParticles

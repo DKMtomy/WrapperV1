@@ -9,7 +9,7 @@ import {
     CommandResult,
     Vector3,
     Dimension,
-    world as MinecraftWorld ,
+    world as MinecraftWorld,
     EntityEquipmentInventoryComponent,
     EquipmentSlot,
     ContainerSlot,
@@ -23,12 +23,14 @@ import {
     MusicOptions,
     WorldSoundOptions,
     RawMessage,
-    TimeOfDay
+    TimeOfDay,
+    system
 } from '@minecraft/server';
 
 import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
-import { MinecraftAfterEvents, MinecraftBeforeEvents } from '../test/test';
+import { MinecraftAfterEvents, MinecraftBeforeEvents } from '../events/Events';
+import { CommandManager } from '../commands/CommandManager';
 
 type PropertyValue = boolean | number | string | undefined;
 
@@ -40,9 +42,13 @@ export class Client {
      */
     protected readonly _IWorld: IWorld;
 
+    public version: string;
+
     public beforeEvents: MinecraftBeforeEvents;
 
     public afterEvents: MinecraftAfterEvents;
+
+    public readonly commands: CommandManager;
 
     // public beforeEvents: WorldBeforeEvents
 
@@ -53,7 +59,9 @@ export class Client {
 
         this.afterEvents = new MinecraftAfterEvents(this._IWorld.afterEvents);
 
-        // this.beforeEvents = this._IWorld.beforeEvents;
+        this.commands = new CommandManager(this);
+
+        this.version = '1.0.0';
     }
 
     /**
@@ -103,9 +111,11 @@ export class Client {
                 if (fireDuration) entity.setOnFire(fireDuration);
 
                 const damageAmount = Math.round(Math.max(0, damage - distance));
-                if (source !== undefined)
-                    entity.runCommand(`damage @s ${damageAmount} entity_explosion entity "${source.getNameTag()}"`);
-                if (source === undefined) entity.runCommand(`damage @s ${damageAmount} entity_explosion`);
+                system.run(() => {
+                    if (source !== undefined)
+                        entity.runCommand(`damage @s ${damageAmount} entity_explosion entity "${source.getNameTag()}"`);
+                    if (source === undefined) entity.runCommand(`damage @s ${damageAmount} entity_explosion`);
+                });
             }
         }
     }

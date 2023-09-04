@@ -2,7 +2,7 @@
   "format_version": 2,
 
   "header": {
-    "name": "wrapper",
+    "name": "CraftedAPI",
     "description": "Assets for New Folder",
     "uuid": "545ada31-6f72-467a-abb2-243d0553a2ea",
     "version": [1, 0, 0],
