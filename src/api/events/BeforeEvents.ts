@@ -148,7 +148,7 @@ export class MinecraftItemUseOnEvent {
     }
 
     get block(): Block {
-        return this.block;
+        return this.originalEvent.block;
     }
 
     get blockFace(): Direction {

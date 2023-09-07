@@ -20,11 +20,21 @@ import {
     ScreenDisplay,
     DimensionLocation,
     PlayerSoundOptions,
-    RawMessage
+    RawMessage,
+    EntityLifetimeState,
+    EntityApplyDamageByProjectileOptions,
+    EntityApplyDamageOptions,
+    EntityComponent,
+    BlockRaycastOptions,
+    BlockRaycastHit,
+    EntityRaycastOptions,
+    EntityRaycastHit,
+    PlayAnimationOptions,
+    TeleportOptions
 } from '@minecraft/server';
 
 import { Entity } from '../entity/index';
-import { Gamemode, titleTypes } from '../types/playerStuff';
+import { Gamemode, titleTypes } from '../index';
 
 /**
  * Wraps an IPlayer object and provides additional functionality.
@@ -42,6 +52,162 @@ export class Player extends Entity {
     constructor(IPlayer: IPlayer) {
         super(IPlayer);
         this._IPlayer = IPlayer;
+    }
+
+    public get _IPlayer2(): IPlayer {
+        return this._IPlayer;
+    }
+
+    public get isClimbing(): boolean {
+        return this._IPlayer.isClimbing;
+    }
+
+    public get dimension(): Dimension {
+        return this._IPlayer.dimension;
+    }
+
+    public get fallDistance(): number {
+        return this._IPlayer.fallDistance;
+    }
+
+    public get id(): string {
+        return this._IPlayer.id;
+    }
+
+    public get isFalling(): boolean {
+        return this._IPlayer.isFalling;
+    }
+
+    public get isInWater(): boolean {
+        return this._IPlayer.isInWater;
+    }
+
+    public get isOnGround(): boolean {
+        return this._IPlayer.isOnGround;
+    }
+
+    public get isSprinting(): boolean {
+        return this._IPlayer.isSprinting;
+    }
+
+    public get isSwimming(): boolean {
+        return this._IPlayer.isSwimming;
+    }
+
+    public get lifetimeState(): EntityLifetimeState {
+        return this._IPlayer.lifetimeState;
+    }
+
+    public get location(): Vector3 {
+        return this._IPlayer.location;
+    }
+
+    public get nameTag(): string {
+        return this._IPlayer.nameTag;
+    }
+
+    public get target(): IEntity | Entity | undefined {
+        return this._IPlayer.target;
+    }
+
+    public get typeId(): string {
+        return this._IPlayer.typeId;
+    }
+
+    public applyDamage(
+        amount: number,
+        options?: EntityApplyDamageByProjectileOptions | EntityApplyDamageOptions
+    ): boolean {
+        return this._IPlayer.applyDamage(amount, options);
+    }
+
+    public applyImpulse(vector: Vector3): void {
+        this._IPlayer.applyImpulse(vector);
+    }
+
+    public applyKnockback(
+        directionX: number,
+        directionZ: number,
+        horizontalStrength: number,
+        verticalStrength: number
+    ): void {
+        this._IPlayer.applyKnockback(directionX, directionZ, horizontalStrength, verticalStrength);
+    }
+
+    public clearVelocity(): void {
+        this._IPlayer.clearVelocity();
+    }
+
+    public extinguishFire(useEffects?: boolean): boolean {
+        return this._IPlayer.extinguishFire(useEffects);
+    }
+
+    public getBlockFromViewDirection(options?: BlockRaycastOptions): BlockRaycastHit | undefined {
+        return this._IPlayer.getBlockFromViewDirection(options);
+    }
+
+    public getComponent(componentId: string): EntityComponent | undefined {
+        return this._IPlayer.getComponent(componentId);
+    }
+
+    public getComponents(): EntityComponent[] {
+        return this._IPlayer.getComponents();
+    }
+
+    public getEntitiesFromViewDirection(options?: EntityRaycastOptions): EntityRaycastHit[] {
+        return this._IPlayer.getEntitiesFromViewDirection(options);
+    }
+
+    public getDynamicProperty(identifier: string): boolean | number | string | undefined {
+        return this._IPlayer.getDynamicProperty(identifier);
+    }
+
+    public getEffect(effectType: EffectType): Effect | undefined {
+        return this._IPlayer.getEffect(effectType);
+    }
+
+    public getEffects(): Effect[] {
+        return this._IPlayer.getEffects();
+    }
+
+    public hasComponent(componentId: string): boolean {
+        return this._IPlayer.hasComponent(componentId);
+    }
+
+    public isValid(): boolean {
+        return this._IPlayer.isValid();
+    }
+
+    public kill(): void {
+        this._IPlayer.kill();
+    }
+
+    public playAnimation(animationName: string, options?: PlayAnimationOptions): void {
+        this._IPlayer.playAnimation(animationName, options);
+    }
+
+    public removeDynamicProperty(identifier: string): boolean {
+        return this._IPlayer.removeDynamicProperty(identifier);
+    }
+
+    public removeEffect(effectType: EffectType): boolean {
+        return this._IPlayer.removeEffect(effectType);
+    }
+
+    public runCommand(command: string): CommandResult {
+        return this._IPlayer.runCommand(command);
+    }
+
+    public setDynamicProperty(identifier: string, value: boolean | number | string): void {
+        return this._IPlayer.setDynamicProperty(identifier, value);
+    }
+
+    public tryTeleport(location: Vector3, teleportOptions?: TeleportOptions): boolean {
+        return this._IPlayer.tryTeleport(location, teleportOptions);
+    }
+
+    public setOnFire(seconds: number, useEffects?: boolean): boolean {
+        return this._IPlayer.setOnFire(seconds, useEffects);
     }
 
     public get isFlying(): boolean {
@@ -102,6 +268,10 @@ export class Player extends Entity {
 
     public getTotalXp(): number {
         return this._IPlayer.getTotalXp();
+    }
+
+    public runCommandAsync(command: string): void {
+        this._IPlayer.runCommandAsync(command);
     }
 
     public isOp(): boolean {

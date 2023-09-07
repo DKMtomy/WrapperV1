@@ -1,5 +1,5 @@
 import { CommandTypes } from '../commands/CommandTypes';
-import { Player } from '../player/index';
+import { Player } from '../index';
 
 /**
  * Abstracted type to get all keys of CommandTypes.

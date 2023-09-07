@@ -80,8 +80,6 @@ export class CommandManager {
             }
         );
 
-        console.warn(this._client, this._client.beforeEvents);
-
         // Enable command handler.
         this._client.beforeEvents.chatSend.on(event => {
             this._onChatHandler(event);

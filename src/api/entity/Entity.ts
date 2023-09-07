@@ -19,7 +19,7 @@ import {
     Container
 } from '@minecraft/server';
 
-import { Vec3 } from '../vector/index';
+import { Vec3 } from '../index';
 
 const { lerp, add } = Vector;
 

@@ -31,8 +31,119 @@ import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
 import { MinecraftAfterEvents, MinecraftBeforeEvents } from '../events/Events';
 import { CommandManager } from '../commands/CommandManager';
+import { ClientEvents, Awaitable } from '../types/index';
+import { EventEmitter } from '../polyfill/EventEmitter';
+import AbstractEvent from '../testEvents/AbstractEvent';
+import { OnChat } from '../testEvents/OnChat';
+import { events } from '../testEvents/index';
 
 type PropertyValue = boolean | number | string | undefined;
+
+export interface Client2 {
+    on: (<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => Awaitable<void>) => void) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClientEvents>,
+            listener: (...args: any[]) => Awaitable<void>
+        ) => void);
+
+    addListener: (<K extends keyof ClientEvents>(
+        event: K,
+        listener: (...args: ClientEvents[K]) => Awaitable<void>
+    ) => void) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClientEvents>,
+            listener: (...args: any[]) => Awaitable<void>
+        ) => void);
+
+    once: (<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => Awaitable<void>) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClientEvents>,
+            listener: (...args: any[]) => Awaitable<void>
+        ) => void);
+
+    emit: (<K extends keyof ClientEvents>(event: K, ...args: ClientEvents[K]) => void) &
+        (<S extends string | symbol>(event: Exclude<S, keyof ClientEvents>, ...args: unknown[]) => void);
+
+    envokeEvent: (<K extends keyof ClientEvents>(event: K, ...args: ClientEvents[K]) => void) &
+        (<S extends string | symbol>(event: Exclude<S, keyof ClientEvents>, ...args: unknown[]) => void);
+
+    off: (<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => Awaitable<void>) => void) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClientEvents>,
+            listener: (...args: any[]) => Awaitable<void>
+        ) => void);
+
+    removeListener: (<K extends keyof ClientEvents>(
+        event: K,
+        listener: (...args: ClientEvents[K]) => Awaitable<void>
+    ) => void) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClientEvents>,
+            listener: (...args: any[]) => Awaitable<void>
+        ) => void);
+
+    removeListeners: (<K extends keyof ClientEvents>(event?: K) => void) &
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClientEvents>) => void);
+}
+
+export class Client2 extends EventEmitter {
+    protected readonly _events = new Map<string, AbstractEvent>();
+
+    public constructor() {
+        super();
+        console.log('Client2 constructor');
+        for (const event of events) {
+            // If events does not already contain
+            if (!this._events.has(event.prototype.name)) {
+                // Load the unregistered event.
+                this.loadEvent(event);
+            }
+        }
+    }
+
+    /**
+     * Loads a new event on the client. Events loaded MUST extend `AbstractClass`.
+     * See [events folder](https://github.com/MCBE-Utilities/BeAPI/tree/beta/packages/beapi/src/events) for formatting.
+     * @param event Non contructed event to load.
+     * @returns
+     */
+    public loadEvent(event: new (client: Client2) => AbstractEvent): void {
+        const builtEvent = new event(this);
+
+        console.log(this.verifyIEvent(builtEvent.iName));
+
+        if (!this.verifyIEvent(builtEvent.iName)) return this.deprecated(builtEvent.iName);
+
+        this._events.set(builtEvent.name, builtEvent);
+        builtEvent.on();
+    }
+
+    /**
+     * Sends deprecated event message in content log.
+     * @param name Name of event
+     * @returns
+     */
+    protected deprecated(name: string): void {
+        return console.warn(
+            `[BeAPI]: Event "${name}" appears be deprecated, skipping registration. Please report this issue here: https://github.com/MCBE-Utilities/BeAPI/issues`
+        );
+    }
+
+    /**
+     * Verifies an event is a valid Minecraft IEvent.
+     * The name `custom` returns `true` because BeAPI registers
+     * a handful of custom events not made by Minecraft.
+     * @param name Name of IEvent.
+     * @returns `true` means exists.
+     */
+    public verifyIEvent(name: string): boolean {
+        if (name === 'custom') return true;
+        return (
+            Object.keys(WorldBeforeEvents.prototype).includes(name) ??
+            Object.keys(WorldAfterEvents.prototype).includes(name)
+        );
+    }
+}
 
 export class Client {
     [key: string]: any;

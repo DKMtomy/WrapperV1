@@ -206,8 +206,6 @@ export namespace CommandTypes {
                 //remove the "" from the text
                 const newText = text.replace(/"/g, '');
 
-                console.warn(newText)
-
                 const player = world.getAllPlayers().find(p => p.name === newText);
 
                 if (!player) a.throwSyntaxError(`Expected player!`);
