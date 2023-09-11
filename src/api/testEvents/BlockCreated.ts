@@ -1,18 +1,18 @@
-// Normal imports.
+// Regular imports.
 import AbstractEvent from './AbstractEvent';
-import { setProto } from '../decorators/setProto';
-import { ChatSendBeforeEvent, world, Player as IPlayer } from '@minecraft/server';
+import { BlockPlaceAfterEvent, world } from '@minecraft/server';
+
+import { Block } from '..';
 
 // Type imports.
 import type { Client } from '../client';
-import { Player } from '../player/index';
 
 /**
- * BeAPI chat event. Contains the logic
+ * BeAPI block created event. Contains the logic
  * for translating Minecraft event data to BeAPI
  * wrapped data.
  */
-export class OnChat extends AbstractEvent {
+export class BlockCreated extends AbstractEvent {
     // Predefined in AbstractEvent.
     protected readonly _logic = this.__logic.bind(this);
     // Predefined in AbstractEvent.
@@ -21,16 +21,16 @@ export class OnChat extends AbstractEvent {
     protected _registered = false;
 
     // Predefined in AbstractEvent.
-    public readonly name = 'OnChat';
+    public readonly name = 'BlockCreated';
 
     // Predefined in AbstractEvent.
-    public readonly iName = 'chatSend';
+    public readonly iName = 'blockPlace';
 
     // Predefined in AbstractEvent.
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI chat event. Contains the logic
+     * BeAPI block created event. Contains the logic
      * for translating Minecraft event data to BeAPI
      * wrapped data.
      * @param client Client referece.
@@ -46,7 +46,7 @@ export class OnChat extends AbstractEvent {
         if (!this._registered) {
             // Subscribe to Minecraft world event with IName
             // And use bound _logic for the callback.
-            world.beforeEvents[this.iName].subscribe(this._logic);
+            world.afterEvents[this.iName].subscribe(this._logic);
             // Set registered to true so this cannot be called
             // Again before off being called.
             this._registered = true;
@@ -59,23 +59,36 @@ export class OnChat extends AbstractEvent {
         if (this._registered) {
             // Remove Minecraft event listener on IName
             // With bound _logic callback.
-            world.beforeEvents[this.iName].unsubscribe(this._logic);
+            world.afterEvents[this.iName].unsubscribe(this._logic);
             // Set registered to false so this cannot be called
             // Again before on being called.
             this._registered = false;
         }
     }
 
-    protected __logic(arg: ChatSendBeforeEvent): void {
-        const sender = new Player(arg.sender, this._client);
+    // Predefined in AbstractEvent.
+    protected __logic(arg: BlockPlaceAfterEvent): void {
+        // Attempt to get the player who created the block.
+        const player = this._client.players.getByIPlayer(arg.player);
 
-        if (!sender) return;
+        console.warn(player.nameTag)
+        // If not player could be found return.
+        if (!player) return;
 
+        // Emit this event on client using name defined above.
         this._client.emit(this.name, {
-            sender,
-            message: arg.message,
-            cancel: () => {
-                arg.cancel = true;
+            player,
+            block: arg.block,
+            dimension: arg.dimension,
+            cancel() {
+                // // TODO: change this to a block permutation instead.
+                // const dim = arg.dimension;
+                // const pos = arg.block.location;
+                // if (player.getGamemode() === 'creative') {
+                //     dim.runCommand(`setblock ${pos.x} ${pos.y} ${pos.z} air`);
+                // } else {
+                //     dim.runCommand(`setblock ${pos.x} ${pos.y} ${pos.z} air 0 destroy`);
+                // }
             }
         });
     }

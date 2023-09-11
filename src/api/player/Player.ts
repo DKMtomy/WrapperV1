@@ -34,7 +34,7 @@ import {
 } from '@minecraft/server';
 
 import { Entity } from '../entity/index';
-import { Gamemode, titleTypes } from '../index';
+import { Client, Gamemode, titleTypes } from '../index';
 
 /**
  * Wraps an IPlayer object and provides additional functionality.
@@ -45,17 +45,85 @@ export class Player extends Entity {
      */
     private readonly _IPlayer: IPlayer;
 
+    protected readonly _client: Client;
+
     /**
      * Creates a new Player instance.
      * @param IPlayer The IPlayer object to wrap.
      */
-    constructor(IPlayer: IPlayer) {
+    constructor(IPlayer: IPlayer, client?: Client) {
         super(IPlayer);
         this._IPlayer = IPlayer;
+        this._client = client;
     }
 
-    public get _IPlayer2(): IPlayer {
+    /**
+     * Gets the players Minecraft Mojang IPlayer object.
+     * @returns
+     */
+    public getIPlayer(): IPlayer {
         return this._IPlayer;
+    }
+
+    /**
+     * Gets the players ID *(non persistant)*.
+     * @returns
+     */
+    public getId(): string {
+        return this._IPlayer.id;
+    }
+
+    /**
+     * Sets the players name tag *(display name)*.
+     * @param nametag Display name to set.
+     */
+    public setNameTag(nametag: string): void {
+        this._IPlayer.nameTag = nametag;
+    }
+
+    /**
+     * Sends action bar text to the player.
+     * @param message Message content to set.
+     */
+    public sendActionbar(message: string): void {
+        const display = this._IPlayer.onScreenDisplay;
+        display.setActionBar(message);
+    }
+
+    /**
+     * Attempts to set the score of the player on an objective.
+     * @param objective Objective to use.
+     * @param amount New score.
+     * @returns
+     */
+    public setScore(objective: string, amount: number): number {
+        this.executeCommand(`scoreboard players set @s "${objective}" ${amount}`);
+
+        return this.getScore(objective);
+    }
+
+    /**
+     * Attempts to add score to the player on an objective.
+     * @param objective Objective to use.
+     * @param amount Amount to add.
+     * @returns
+     */
+    public addScore(objective: string, amount: number): number {
+        this.executeCommand(`scoreboard players add @s "${objective}" ${amount}`);
+
+        return this.getScore(objective);
+    }
+
+    /**
+     * Attempts to remove score from the player on an objective.
+     * @param objective Objective to use.
+     * @param amount Amount to remove.
+     * @returns
+     */
+    public removeScore(objective: string, amount: number): number {
+        this.executeCommand(`scoreboard players remove @s "${objective}" ${amount}`);
+
+        return this.getScore(objective);
     }
 
     public get isClimbing(): boolean {
@@ -132,6 +200,10 @@ export class Player extends Entity {
         verticalStrength: number
     ): void {
         this._IPlayer.applyKnockback(directionX, directionZ, horizontalStrength, verticalStrength);
+    }
+
+    public getName(): string {
+        return this._IPlayer.name;
     }
 
     public clearVelocity(): void {
@@ -318,24 +390,15 @@ export class Player extends Entity {
      * Gets the player's current gamemode.
      * @returns A promise that resolves to the player's gamemode.
      */
-    public async getGamemode(): Promise<string | undefined> {
-        const gamemodeCommands = [
-            `testfor @s[m=${Gamemode.survival}]`,
-            `testfor @s[m=${Gamemode.creative}]`,
-            `testfor @s[m=${Gamemode.adventure}]`,
-            `testfor @s[m=${Gamemode.spectator}]`
-        ];
+    public getGamemode(): Gamemode {
+        const gmc = this._client.executeCommand(`testfor @a[name="${this.getNameTag()}",m=c]`, this.getDimension().id);
+        const gma = this._client.executeCommand(`testfor @a[name="${this.getNameTag()}",m=a]`, this.getDimension().id);
+        const gms = this._client.executeCommand(`testfor @a[name="${this.getNameTag()}",m=s]`, this.getDimension().id);
+        if (!gmc.err) return Gamemode.creative;
+        if (!gma.err) return Gamemode.adventure;
+        if (!gms.err) return Gamemode.survival;
 
-        for (const command of gamemodeCommands) {
-            try {
-                await this._IPlayer.runCommandAsync(command);
-                return command.split('=')[1];
-            } catch (error) {
-                // Ignore errors and try the next command.
-            }
-        }
-
-        return undefined;
+        return Gamemode.unknown;
     }
 
     /**

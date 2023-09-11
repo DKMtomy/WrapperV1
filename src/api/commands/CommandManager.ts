@@ -1,10 +1,9 @@
 import { Client } from '../client/index';
 import type { Player } from '../player';
-import { MinecraftChatSendBeforeEvent } from '../events/BeforeEvents';
-import { MinecraftChatSendAfterEvent } from '../events/AfterEvents';
 import { CommandArguments, CommandCallable, CommandEntry, CommandOptions } from '../types/Commands';
 import { CommandExecState } from './CommandExecState';
 import { CommandTypes, checkObjectForCommandTypes } from './CommandTypes';
+import { OnChatEvent } from '../types';
 
 // Static array of command type constructors.
 const commandTypes: (typeof CommandTypes)[keyof typeof CommandTypes][] = [];
@@ -81,7 +80,7 @@ export class CommandManager {
         );
 
         // Enable command handler.
-        this._client.beforeEvents.chatSend.on(event => {
+        this._client.on('OnChat', event => {
             this._onChatHandler(event);
         });
     }
@@ -90,7 +89,7 @@ export class CommandManager {
      * Logic for try executing commands when chat is used.
      * @param e On chat event.
      */
-    protected _onChatHandler(e: MinecraftChatSendBeforeEvent): void {
+    protected _onChatHandler(e: OnChatEvent): void {
         return this.tryExecuteFrom(e.message, e.sender!, e);
     }
 
@@ -336,11 +335,11 @@ export class CommandManager {
      * @param str Command String.
      * @param player Player executor.
      */
-    public tryExecuteFrom(str: string, player: Player, e: MinecraftChatSendBeforeEvent): void {
+    public tryExecuteFrom(str: string, player: Player, e: OnChatEvent): void {
         // If string does not start with prefix
         // no need to continue.
         if (!str.startsWith(this._prefix)) return;
-        e.cancel = true;
+        e.cancel();
 
         // Create a new command execution state
         const state = new CommandExecState(this, player, str);

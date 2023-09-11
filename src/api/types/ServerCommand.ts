@@ -5,7 +5,7 @@ export interface ServerCommandResponse<T = any> {
     /**
      * Message response from server.
      */
-    statusMessage: string;
+    successCount: number;
     /**
      * Data associated with the response.
      */

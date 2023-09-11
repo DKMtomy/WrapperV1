@@ -1,18 +1,16 @@
 // Normal imports.
 import AbstractEvent from './AbstractEvent';
-import { setProto } from '../decorators/setProto';
-import { ChatSendBeforeEvent, world, Player as IPlayer } from '@minecraft/server';
+import { PlayerJoinAfterEvent, world, Player as IPlayer, PlayerSpawnAfterEvent } from '@minecraft/server';
 
 // Type imports.
 import type { Client } from '../client';
-import { Player } from '../player/index';
 
 /**
- * BeAPI chat event. Contains the logic
+ * BeAPI join event. Contains the logic
  * for translating Minecraft event data to BeAPI
  * wrapped data.
  */
-export class OnChat extends AbstractEvent {
+export class OnJoin extends AbstractEvent {
     // Predefined in AbstractEvent.
     protected readonly _logic = this.__logic.bind(this);
     // Predefined in AbstractEvent.
@@ -21,16 +19,16 @@ export class OnChat extends AbstractEvent {
     protected _registered = false;
 
     // Predefined in AbstractEvent.
-    public readonly name = 'OnChat';
+    public readonly name = 'OnJoin';
 
     // Predefined in AbstractEvent.
-    public readonly iName = 'chatSend';
+    public readonly iName = 'playerSpawn';
 
     // Predefined in AbstractEvent.
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI chat event. Contains the logic
+     * BeAPI join event. Contains the logic
      * for translating Minecraft event data to BeAPI
      * wrapped data.
      * @param client Client referece.
@@ -46,7 +44,7 @@ export class OnChat extends AbstractEvent {
         if (!this._registered) {
             // Subscribe to Minecraft world event with IName
             // And use bound _logic for the callback.
-            world.beforeEvents[this.iName].subscribe(this._logic);
+            world.afterEvents[this.iName].subscribe(this._logic);
             // Set registered to true so this cannot be called
             // Again before off being called.
             this._registered = true;
@@ -59,24 +57,20 @@ export class OnChat extends AbstractEvent {
         if (this._registered) {
             // Remove Minecraft event listener on IName
             // With bound _logic callback.
-            world.beforeEvents[this.iName].unsubscribe(this._logic);
+            world.afterEvents[this.iName].unsubscribe(this._logic);
             // Set registered to false so this cannot be called
             // Again before on being called.
             this._registered = false;
         }
     }
 
-    protected __logic(arg: ChatSendBeforeEvent): void {
-        const sender = new Player(arg.sender, this._client);
-
-        if (!sender) return;
-
-        this._client.emit(this.name, {
-            sender,
-            message: arg.message,
-            cancel: () => {
-                arg.cancel = true;
-            }
-        });
+    // Predefined in AbstractEvent.
+    protected __logic(arg: PlayerSpawnAfterEvent): void {
+        // Create a player from the IPlayer object.
+        const player = this._client.players.create(arg.player);
+        // Add the player to player manager.
+        this._client.players.add(player);
+        // Emit the new player.
+        this._client.emit(this.name, player);
     }
 }

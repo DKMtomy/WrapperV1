@@ -29,17 +29,17 @@ import {
 
 import { Vec3 } from '../vector/index';
 import { Player } from '../player/index';
-import { MinecraftAfterEvents, MinecraftBeforeEvents } from '../events/Events';
 import { CommandManager } from '../commands/CommandManager';
-import { ClientEvents, Awaitable } from '../types/index';
+import { ClientEvents, Awaitable, DimensionNamespace, ServerCommandResponse } from '../types/index';
 import { EventEmitter } from '../polyfill/EventEmitter';
 import AbstractEvent from '../testEvents/AbstractEvent';
 import { OnChat } from '../testEvents/OnChat';
 import { events } from '../testEvents/index';
+import { PlayerManager } from '../player/PlayerManager';
 
 type PropertyValue = boolean | number | string | undefined;
 
-export interface Client2 {
+export interface Client {
     on: (<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => Awaitable<void>) => void) &
         (<S extends string | symbol>(
             event: Exclude<S, keyof ClientEvents>,
@@ -86,12 +86,25 @@ export interface Client2 {
         (<S extends string | symbol>(event?: Exclude<S, keyof ClientEvents>) => void);
 }
 
-export class Client2 extends EventEmitter {
+export class Client extends EventEmitter {
     protected readonly _events = new Map<string, AbstractEvent>();
 
-    public constructor() {
+    /**
+     * Protected IWorld object being wrapped.
+     */
+    protected readonly _IWorld: IWorld;
+
+    public version: string;
+
+    public readonly commands = new CommandManager(this)
+
+    public readonly players = new PlayerManager(this)
+
+    // public beforeEvents: WorldBeforeEvents
+
+    constructor() {
         super();
-        console.log('Client2 constructor');
+
         for (const event of events) {
             // If events does not already contain
             if (!this._events.has(event.prototype.name)) {
@@ -99,6 +112,10 @@ export class Client2 extends EventEmitter {
                 this.loadEvent(event);
             }
         }
+
+        this._IWorld = MinecraftWorld;
+
+        this.version = '1.0.0';
     }
 
     /**
@@ -107,10 +124,8 @@ export class Client2 extends EventEmitter {
      * @param event Non contructed event to load.
      * @returns
      */
-    public loadEvent(event: new (client: Client2) => AbstractEvent): void {
+    public loadEvent(event: new (client: Client) => AbstractEvent): void {
         const builtEvent = new event(this);
-
-        console.log(this.verifyIEvent(builtEvent.iName));
 
         if (!this.verifyIEvent(builtEvent.iName)) return this.deprecated(builtEvent.iName);
 
@@ -139,40 +154,10 @@ export class Client2 extends EventEmitter {
     public verifyIEvent(name: string): boolean {
         if (name === 'custom') return true;
         return (
-            Object.keys(WorldBeforeEvents.prototype).includes(name) ??
-            Object.keys(WorldAfterEvents.prototype).includes(name)
+            Object.keys(WorldBeforeEvents.prototype).includes(name) ||
+            Object.keys(WorldAfterEvents.prototype).includes(name) ||
+            false
         );
-    }
-}
-
-export class Client {
-    [key: string]: any;
-
-    /**
-     * Protected IWorld object being wrapped.
-     */
-    protected readonly _IWorld: IWorld;
-
-    public version: string;
-
-    public beforeEvents: MinecraftBeforeEvents;
-
-    public afterEvents: MinecraftAfterEvents;
-
-    public readonly commands: CommandManager;
-
-    // public beforeEvents: WorldBeforeEvents
-
-    constructor() {
-        this._IWorld = MinecraftWorld;
-
-        this.beforeEvents = new MinecraftBeforeEvents(this._IWorld.beforeEvents);
-
-        this.afterEvents = new MinecraftAfterEvents(this._IWorld.afterEvents);
-
-        this.commands = new CommandManager(this);
-
-        this.version = '1.0.0';
     }
 
     /**
@@ -250,7 +235,7 @@ export class Client {
     }
 
     public getAllPlayers(): Player[] {
-        return this._IWorld.getAllPlayers().map(player => new Player(player));
+        return this._IWorld.getAllPlayers().map(player => new Player(player, this));
     }
 
     public getDay(): number {
@@ -274,7 +259,7 @@ export class Client {
     }
 
     public getPlayers(options?: EntityQueryOptions): Player[] {
-        return this._IWorld.getPlayers(options).map(player => new Player(player));
+        return this._IWorld.getPlayers(options).map(player => new Player(player, this));
     }
 
     public getTimeOfDay(): number {
@@ -319,5 +304,37 @@ export class Client {
 
     public stopMusic(): void {
         this._IWorld.stopMusic();
+    }
+
+    /**
+     * Executes a world level command.
+     * @param cmd Command string.
+     * @param dimension Optional dimensino to execute in.
+     * @param debug Send errors to content log?
+     * @returns
+     */
+    public executeCommand<T>(
+        cmd: string,
+        dimension: DimensionNamespace | string = 'minecraft:overworld',
+        debug = false
+    ): ServerCommandResponse<T> {
+        try {
+            //@ts-expect-error
+            const command = this.world.getDimension(dimension).executeCommand(cmd) as ServerCommandResponse<T>;
+
+            return {
+                successCount: command.successCount,
+                data: command as unknown as T,
+                err: false
+            };
+        } catch (error) {
+            if (debug) console.info(`[executeCommand]: ${String(error)}`);
+
+            return {
+                successCount: 0,
+                data: null,
+                err: true
+            };
+        }
     }
 }

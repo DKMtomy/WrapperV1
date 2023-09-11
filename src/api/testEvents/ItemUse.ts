@@ -1,18 +1,18 @@
 // Normal imports.
 import AbstractEvent from './AbstractEvent';
 import { setProto } from '../decorators/setProto';
-import { ChatSendBeforeEvent, world, Player as IPlayer } from '@minecraft/server';
+import { ChatSendBeforeEvent, world, Player as IPlayer, ItemUseBeforeEvent } from '@minecraft/server';
 
 // Type imports.
 import type { Client } from '../client';
 import { Player } from '../player/index';
 
 /**
- * BeAPI chat event. Contains the logic
+ * BeAPI item use event. Contains the logic
  * for translating Minecraft event data to BeAPI
  * wrapped data.
  */
-export class OnChat extends AbstractEvent {
+export class ItemUse extends AbstractEvent {
     // Predefined in AbstractEvent.
     protected readonly _logic = this.__logic.bind(this);
     // Predefined in AbstractEvent.
@@ -21,16 +21,16 @@ export class OnChat extends AbstractEvent {
     protected _registered = false;
 
     // Predefined in AbstractEvent.
-    public readonly name = 'OnChat';
+    public readonly name = 'playerUseItem';
 
     // Predefined in AbstractEvent.
-    public readonly iName = 'chatSend';
+    public readonly iName = 'itemUse';
 
     // Predefined in AbstractEvent.
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI chat event. Contains the logic
+     * BeAPI item use event. Contains the logic
      * for translating Minecraft event data to BeAPI
      * wrapped data.
      * @param client Client referece.
@@ -66,15 +66,13 @@ export class OnChat extends AbstractEvent {
         }
     }
 
-    protected __logic(arg: ChatSendBeforeEvent): void {
-        const sender = new Player(arg.sender, this._client);
-
-        if (!sender) return;
-
+    // Predefined in AbstractEvent.
+    protected __logic(arg: ItemUseBeforeEvent): void {
+        // Emit use item event stuffs.
         this._client.emit(this.name, {
-            sender,
-            message: arg.message,
-            cancel: () => {
+            source: arg.source instanceof IPlayer ? new Player(arg.source, this._client) : undefined,
+            item: arg.itemStack,
+            cancel() {
                 arg.cancel = true;
             }
         });

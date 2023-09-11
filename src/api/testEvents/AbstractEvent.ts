@@ -1,5 +1,5 @@
 // Type imports.
-import type { Client, Client2 } from '../client/Client';
+import type { Client } from '../client/Client';
 
 /**
  * Abstract Event Class. This must extended when
@@ -11,7 +11,7 @@ export default abstract class {
     /**
      * Protected client circular reference.
      */
-    protected abstract readonly _client: Client2;
+    protected abstract readonly _client: Client;
     /**
      * Protected logic *(bound to `this`)*.
      * See any of the events for example.

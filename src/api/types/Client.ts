@@ -1,8 +1,12 @@
-import { Player } from '../player/index';
-import { Player as IPlayer } from '@minecraft/server';
+import { Block, Entity, Player } from '..';
+import { Dimension, Player as IPlayer, ItemStack } from '@minecraft/server';
+import { BlockCreated } from '../testEvents/BlockCreated';
 
 export interface ClientEvents {
     OnChat: [OnChatEvent];
+    playerUseItem: [ItemUseEvent];
+    blockCreated: [BlockCreatedEvent];
+    OnJoin: [Player];
 }
 
 export interface OnChatEvent {
@@ -18,20 +22,46 @@ export interface OnChatEvent {
      * Stop event from occuring.
      */
     cancel: CancelMethod;
+}
+
+/**
+ * Block created event trigger data.
+ */
+export interface BlockCreatedEvent {
     /**
-     * Send the message to the targets.
-     *
+     * Player who placed the block.
      */
-    setTargets(players: Player[]): void;
+    player: Player;
     /**
-     * Get the targets the message will be sent to.
-     * @returns Array of players.
+     * Block that was placed.
      */
-    getTargets(): Player[];
+    block: Block;
     /**
-     * Send the message to the targets.
+     * Dimension event occured in.
      */
-    sendToTargets: boolean;
+    dimension: Dimension;
+    /**
+     * Stop event from occuring.
+     */
+    cancel: CancelMethod;
+}
+
+/**
+ * Item used trigger data.
+ */
+export interface ItemUseEvent {
+    /**
+     * The player or entity or possibly nothing that used the item.
+     */
+    source: Player | undefined;
+    /**
+     * The item in question.
+     */
+    item: ItemStack;
+    /**
+     * Stop event from occuring.
+     */
+    cancel: CancelMethod;
 }
 
 /**

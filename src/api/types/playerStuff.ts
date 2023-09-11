@@ -1,8 +1,9 @@
 export enum Gamemode {
-    creative,
-    survival,
-    adventure,
-    spectator
+    creative = "creative",
+    survival = "survival",
+    adventure = "adventure",
+    spectator = "spectator",
+    unknown = "unknown"
 }
 
 export type Effects =
