@@ -21,7 +21,7 @@ export class EntityInventory {
     protected readonly _IContainer: IContainer;
 
     /**
-     * BeAPI entity inventory wrapper.
+     * CraftedAPI entity inventory wrapper.
      * Acts as a central point for easily interacting
      * with a player/entities inventory.
      * @param client Client reference.

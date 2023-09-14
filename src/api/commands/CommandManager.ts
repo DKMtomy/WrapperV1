@@ -29,7 +29,7 @@ function verifyDefinitionTypes<T extends CommandArguments>(schema: T): string | 
 }
 
 /**
- * Primary class for interacting with BeAPI commands.
+ * Primary class for interacting with CraftedAPI commands.
  *
  * Mach 3 bb <3
  */

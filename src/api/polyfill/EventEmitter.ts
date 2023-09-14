@@ -15,8 +15,8 @@ export class EventEmitter {
      * may just be named slightly different.
      * @param max Max listeners before mem leak warnings.
      */
-    public constructor(max = 50) {
-        this.max = max;
+    constructor(_max_ = 50) {
+        this.max = _max_;
     }
 
     // Override toString/name Methods

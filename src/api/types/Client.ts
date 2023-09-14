@@ -1,12 +1,15 @@
-import { Block, Entity, Player } from '..';
-import { Dimension, Player as IPlayer, ItemStack } from '@minecraft/server';
+import { Dimension, Player as IPlayer, ItemStack, Block as IBlock } from '@minecraft/server';
 import { BlockCreated } from '../testEvents/BlockCreated';
+import { Block } from '../block/Block';
+import { Player } from '../player/Player';
+import { Item } from '../item/item';
 
 export interface ClientEvents {
     OnChat: [OnChatEvent];
     playerUseItem: [ItemUseEvent];
-    blockCreated: [BlockCreatedEvent];
+    BlockCreated: [BlockCreatedEvent];
     OnJoin: [Player];
+    Tick: [TickEvent];
 }
 
 export interface OnChatEvent {
@@ -57,11 +60,21 @@ export interface ItemUseEvent {
     /**
      * The item in question.
      */
-    item: ItemStack;
+    item: Item;
     /**
      * Stop event from occuring.
      */
     cancel: CancelMethod;
+}
+
+/**
+ * Server tick iteration event data,
+ */
+export interface TickEvent {
+    /**
+     * Current tick number. Always increases.
+     */
+    currentTick: number;
 }
 
 /**

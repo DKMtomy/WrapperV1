@@ -1,6 +1,6 @@
-// Type imports.
-import type { Client } from '..';
-import type { BlockPermutation as IPermutation, BlockType as IBlockType } from '@minecraft/server';
+import { BlockPermutation as IPermutation } from '@minecraft/server';
+import { Client } from '../client/Client';
+import { BlockType } from './BlockType';
 
 export class Permutation {
     /**
@@ -31,65 +31,65 @@ export class Permutation {
         return this._IPermutation;
     }
 
-    // /**
-    //  * Get BeAPI wrapped block type.
-    //  * @returns
-    //  */
-    // public getType(): IBlockType {
-    //     return this._IPermutation.type;
-    // }
+    /**
+     * Get BeAPI wrapped block type.
+     * @returns
+     */
+    public getType(): BlockType {
+        return new BlockType(this._client, this._IPermutation.type);
+    }
 
-    // /**
-    //  * Get permutation tags.
-    //  * @returns
-    //  */
-    // public getTags(): string[] {
-    //     return this._IPermutation.getTags();
-    // }
+    /**
+     * Get permutation tags.
+     * @returns
+     */
+    public getTags(): string[] {
+        return this._IPermutation.getTags();
+    }
 
-    // /**
-    //  * Check if permutation has a specific tag.
-    //  * @param tag Tag to check.
-    //  * @returns
-    //  */
-    // public hasTag(tag: string): boolean {
-    //     return this._IPermutation.hasTag(tag);
-    // }
+    /**
+     * Check if permutation has a specific tag.
+     * @param tag Tag to check.
+     * @returns
+     */
+    public hasTag(tag: string): boolean {
+        return this._IPermutation.hasTag(tag);
+    }
 
-    // /**
-    //  * Gets permutation block properties.
-    //  * @returns
-    //  */
-    // public getProperties(): Record<string, boolean | number | string> {
-    //     return this._IPermutation.getAllStates();
-    // }
+    /**
+     * Gets permutation block properties.
+     * @returns
+     */
+    public getProperties(): Record<string, boolean | number | string> {
+        return this._IPermutation.getAllStates();
+    }
 
-    // /**
-    //  * Checks if permutation has a specific property.
-    //  * @param property Property to check.
-    //  * @returns
-    //  */
-    // public hasProperty(property: string): boolean {
-    //     const check = Object.keys(this.getProperties()).find(prop => prop === property);
-    //     if (!check) return false;
+    /**
+     * Checks if permutation has a specific property.
+     * @param property Property to check.
+     * @returns Whether the permutation has the specified property.
+     */
+    public hasProperty(property: string): boolean {
+        const properties = this.getProperties();
+        if (!properties) return false;
 
-    //     return true;
-    // }
+        return property in properties;
+    }
 
-    // /**
-    //  * Gets a specific property from the permutation.
-    //  * @param property Permutation to get.
-    //  * @returns
-    //  */
-    // public getProperty(property: string): string | boolean | number {
-    //     return Object.keys(this.getProperties()).find(prop => prop === property);
-    // }
+    /**
+     * Gets a specific property from the permutation.
+     * @param property Permutation to get.
+     * @returns
+     */
+    public getProperty(property: string): boolean | number | string | undefined {
+        return this._IPermutation.getState(property);
+    }
 
-    // /**
-    //  * Clones the block permutation creating a seperate reference.
-    //  * @returns
-    //  */
-    // public clone(): Permutation {
-    //     return new Permutation(this._client, this._IPermutation.clone());
-    // }
+    /**
+     * Clones the block permutation creating a seperate reference.
+     * @returns
+     */
+    public clone(): Permutation {
+        return new Permutation(this._client, this._IPermutation.clone());
+    }
 }

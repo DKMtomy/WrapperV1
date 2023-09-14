@@ -1,6 +1,6 @@
 import { Player } from './Player';
 
-import type { Player as IPlayer } from '@minecraft/server';
+import { world, type Player as IPlayer } from '@minecraft/server';
 import type { Client } from '../client';
 
 export class PlayerManager {
@@ -20,6 +20,10 @@ export class PlayerManager {
      */
     public constructor(client: Client) {
         this._client = client;
+
+        world.getPlayers().forEach(player => {
+            if (!this._players.has(player.name)) this.add(this.create(player));
+        });
     }
 
     /**

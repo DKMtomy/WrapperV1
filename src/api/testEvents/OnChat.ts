@@ -8,8 +8,8 @@ import type { Client } from '../client';
 import { Player } from '../player/index';
 
 /**
- * BeAPI chat event. Contains the logic
- * for translating Minecraft event data to BeAPI
+ * CraftedAPI chat event. Contains the logic
+ * for translating Minecraft event data to CraftedAPI
  * wrapped data.
  */
 export class OnChat extends AbstractEvent {
@@ -30,8 +30,8 @@ export class OnChat extends AbstractEvent {
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI chat event. Contains the logic
-     * for translating Minecraft event data to BeAPI
+     * CraftedAPI chat event. Contains the logic
+     * for translating Minecraft event data to CraftedAPI
      * wrapped data.
      * @param client Client referece.
      */

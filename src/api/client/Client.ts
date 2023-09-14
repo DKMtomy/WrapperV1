@@ -27,8 +27,6 @@ import {
     system
 } from '@minecraft/server';
 
-import { Vec3 } from '../vector/index';
-import { Player } from '../player/index';
 import { CommandManager } from '../commands/CommandManager';
 import { ClientEvents, Awaitable, DimensionNamespace, ServerCommandResponse } from '../types/index';
 import { EventEmitter } from '../polyfill/EventEmitter';
@@ -36,6 +34,7 @@ import AbstractEvent from '../testEvents/AbstractEvent';
 import { OnChat } from '../testEvents/OnChat';
 import { events } from '../testEvents/index';
 import { PlayerManager } from '../player/PlayerManager';
+import { WorldManager } from '../world/WorldManager';
 
 type PropertyValue = boolean | number | string | undefined;
 
@@ -96,31 +95,33 @@ export class Client extends EventEmitter {
 
     public version: string;
 
-    public readonly commands = new CommandManager(this)
+    public readonly commands = new CommandManager(this);
 
-    public readonly players = new PlayerManager(this)
+    public readonly players = new PlayerManager(this);
+
+    public readonly world = new WorldManager(this);
 
     // public beforeEvents: WorldBeforeEvents
 
     constructor() {
         super();
+        this.initializeEvents();
+        this._IWorld = MinecraftWorld;
+        this.version = '1.0.0';
+    }
 
+    private initializeEvents() {
         for (const event of events) {
-            // If events does not already contain
-            if (!this._events.has(event.prototype.name)) {
-                // Load the unregistered event.
+            const eventName = event.prototype.name;
+            if (!this._events.has(eventName)) {
                 this.loadEvent(event);
             }
         }
-
-        this._IWorld = MinecraftWorld;
-
-        this.version = '1.0.0';
     }
 
     /**
      * Loads a new event on the client. Events loaded MUST extend `AbstractClass`.
-     * See [events folder](https://github.com/MCBE-Utilities/BeAPI/tree/beta/packages/beapi/src/events) for formatting.
+     * See [events folder](https://github.com/MCBE-Utilities/CraftedAPI/tree/beta/packages/CraftedAPI/src/events) for formatting.
      * @param event Non contructed event to load.
      * @returns
      */
@@ -140,13 +141,13 @@ export class Client extends EventEmitter {
      */
     protected deprecated(name: string): void {
         return console.warn(
-            `[BeAPI]: Event "${name}" appears be deprecated, skipping registration. Please report this issue here: https://github.com/MCBE-Utilities/BeAPI/issues`
+            `[CraftedAPI]: Event "${name}" appears be deprecated, skipping registration. Please report this issue here: https://github.com/MCBE-Utilities/CraftedAPI/issues`
         );
     }
 
     /**
      * Verifies an event is a valid Minecraft IEvent.
-     * The name `custom` returns `true` because BeAPI registers
+     * The name `custom` returns `true` because CraftedAPI registers
      * a handful of custom events not made by Minecraft.
      * @param name Name of IEvent.
      * @returns `true` means exists.
@@ -158,152 +159,6 @@ export class Client extends EventEmitter {
             Object.keys(WorldAfterEvents.prototype).includes(name) ||
             false
         );
-    }
-
-    /**
-     * better explosion | give player credit, better damage adjustment, and knockback adjustment and it does break blocks
-     */
-    public createExplosion(
-        radius: number,
-        damage: number,
-        knockbackFactor: number = 1,
-        fireDuration: number = 0,
-        location: Vector3,
-        damagePlayers: boolean,
-        damageEntities: boolean,
-        source: Player
-    ) {
-        for (const entity of [
-            ...this._IWorld.getDimension('overworld').getEntities(),
-            ...this._IWorld.getAllPlayers()
-        ]) {
-            if (entity === source.getIEntity()) continue; // dont damage player that caused the splash damage
-            if (!damagePlayers && entity instanceof Player) continue;
-            if (!damageEntities && entity instanceof Entity) continue;
-
-            const deltaX = entity.location.x - location.x;
-            const deltaY = entity.location.y - location.y;
-            const deltaZ = entity.location.z - location.z;
-
-            const distanceSquared = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
-            const distance = Math.sqrt(distanceSquared);
-
-            if (distance <= radius) {
-                if (knockbackFactor) {
-                    const horizontalFactor = Math.min(1.0, distance / radius);
-                    const verticalFactor = 1.0 - horizontalFactor; // modify better for later
-
-                    const directionX = deltaX / distance;
-                    const directionZ = deltaZ / distance;
-                    const horizontalStrength = knockbackFactor * horizontalFactor;
-                    const verticalStrength = knockbackFactor * verticalFactor;
-
-                    // Apply knockback using applyKnockback
-                    try {
-                        entity.applyKnockback(directionX, directionZ, horizontalStrength, verticalStrength);
-                    } catch {} // some entities dont support knockback
-                }
-
-                if (fireDuration) entity.setOnFire(fireDuration);
-
-                const damageAmount = Math.round(Math.max(0, damage - distance));
-                system.run(() => {
-                    if (source !== undefined)
-                        entity.runCommand(`damage @s ${damageAmount} entity_explosion entity "${source.getNameTag()}"`);
-                    if (source === undefined) entity.runCommand(`damage @s ${damageAmount} entity_explosion`);
-                });
-            }
-        }
-    }
-
-    // Expose 'scoreboard' as a property on WorldWrapper
-    get scoreboard(): Scoreboard {
-        return this._IWorld.scoreboard;
-    }
-
-    //copy all methods and properties from IWorld
-    public get IWorld(): IWorld {
-        return this._IWorld;
-    }
-
-    public broadcastClientMessage(id: string, value: string): void {
-        this._IWorld.broadcastClientMessage(id, value);
-    }
-
-    public getAbsoluteTime(): number {
-        return this._IWorld.getAbsoluteTime();
-    }
-
-    public getAllPlayers(): Player[] {
-        return this._IWorld.getAllPlayers().map(player => new Player(player, this));
-    }
-
-    public getDay(): number {
-        return this._IWorld.getDay();
-    }
-
-    public getDefaultSpawnLocation(): Vector3 {
-        return this._IWorld.getDefaultSpawnLocation();
-    }
-
-    public getDimension(dimensionId: string): Dimension {
-        return this._IWorld.getDimension(dimensionId);
-    }
-
-    public getDynamicProperty(identifier: string): boolean | number | string | undefined {
-        return this._IWorld.getDynamicProperty(identifier);
-    }
-
-    public getEntity(id: string): Entity | undefined {
-        return this._IWorld.getEntity(id);
-    }
-
-    public getPlayers(options?: EntityQueryOptions): Player[] {
-        return this._IWorld.getPlayers(options).map(player => new Player(player, this));
-    }
-
-    public getTimeOfDay(): number {
-        return this._IWorld.getTimeOfDay();
-    }
-
-    public playMusic(trackID: string, musicOptions?: MusicOptions): void {
-        this._IWorld.playMusic(trackID, musicOptions);
-    }
-
-    public playSound(soundID: string, location: Vector3, soundOptions?: WorldSoundOptions): void {
-        this._IWorld.playSound(soundID, location, soundOptions);
-    }
-
-    public queueMusic(trackID: string, musicOptions?: MusicOptions): void {
-        this._IWorld.queueMusic(trackID, musicOptions);
-    }
-
-    public removeDynamicProperty(identifier: string): boolean {
-        return this._IWorld.removeDynamicProperty(identifier);
-    }
-
-    public sendMessage(message: (RawMessage | string)[] | RawMessage | string): void {
-        this._IWorld.sendMessage(message);
-    }
-
-    public setAbsoluteTime(absoluteTime: number): void {
-        this._IWorld.setAbsoluteTime(absoluteTime);
-    }
-
-    public setDefaultSpawnLocation(spawnLocation: Vector3): void {
-        this._IWorld.setDefaultSpawnLocation(spawnLocation);
-    }
-
-    public setDynamicProperty(identifier: string, value: boolean | number | string): void {
-        this._IWorld.setDynamicProperty(identifier, value);
-    }
-
-    public setTimeOfDay(timeOfDay: number | TimeOfDay): void {
-        this._IWorld.setTimeOfDay(timeOfDay);
-    }
-
-    public stopMusic(): void {
-        this._IWorld.stopMusic();
     }
 
     /**
@@ -319,16 +174,15 @@ export class Client extends EventEmitter {
         debug = false
     ): ServerCommandResponse<T> {
         try {
-            //@ts-expect-error
-            const command = this.world.getDimension(dimension).executeCommand(cmd) as ServerCommandResponse<T>;
+            const command = this.world.getDimension(dimension).executeCommand(cmd);
 
             return {
                 successCount: command.successCount,
-                data: command as unknown as T,
+                data: command as T,
                 err: false
             };
         } catch (error) {
-            if (debug) console.info(`[executeCommand]: ${String(error)}`);
+            if (debug) console.info(error);
 
             return {
                 successCount: 0,

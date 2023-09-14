@@ -1,5 +1,5 @@
-import { Client, CommandTypes, CraftedDB, Player } from './api/index';
-import { BlockSignComponent, ItemStack, ItemTypes, system, world } from '@minecraft/server';
+import { Client, CommandTypes, CraftedDB, Item, Player } from './api/index';
+import { BlockSignComponent, EnchantmentTypes, ItemStack, ItemTypes, system, world } from '@minecraft/server';
 
 const client = new Client();
 
@@ -7,23 +7,28 @@ client.commands.register('test', 'test', data => {
     data.sendMessage('it works lmfao');
 });
 
-client.commands.register('explosion', 'Creates an explosion', sender => {
-    client.createExplosion(5, 100, 10, 0, sender.getLocation(), true, true, sender);
-});
-
-// client.beforeEvents.chatSend.on(event => {
-//     event.cancel = true;
-// });
+client.commands.register('explosion', 'Creates an explosion', sender => {});
 
 client.on('OnChat', event => {
+    if (event.message.startsWith(client.commands.getPrefix())) return;
     event.cancel();
-    event.sender.sendMessage('it works lmfao');
+    console.log(event.sender.executeCommand('weather query'));
 });
 
 client.on('playerUseItem', event => {
-    // console.warn('test');
-    event.cancel();
-    if (!(event.source instanceof Player)) return;
+    client.executeCommand(`say ${event.source.name} used ${event.item.getId()}`);
+});
+
+client.commands.register('enchant', 'add an enchantment to the item you are holding', sender => {
+    const item = new Item(client, sender.mainhandItem);
+
+    item.addEnchantment('unbreaking', 1);
+});
+
+client.on('Tick', event => {
+    if (event.currentTick % 20 === 0) {
+        console.log(event.currentTick);
+    }
 });
 
 client.commands.register(
@@ -39,11 +44,12 @@ client.commands.register(
     }
 );
 
-client.on('blockCreated', event => {
+client.on('BlockCreated', event => {
+    console.log(event.block.isWaterLogged());
 });
 
-client.on("OnJoin", event => {
-    event.executeCommand("say hi");
+client.on('OnJoin', event => {
+    event.executeCommand('say hi');
 });
 
 client.commands.register(
@@ -73,6 +79,6 @@ client.commands.register(
     },
     (sender, args) => {
         sender.sendMessage(`${args.player.name}`);
-        console.log(args.player.getNameTag());
+        args.player.setScore('idk', 100);
     }
 );

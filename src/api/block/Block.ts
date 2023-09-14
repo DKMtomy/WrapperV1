@@ -1,16 +1,10 @@
-import {
-    //@ts-expect-error
-    BlockType,
-    Permutation,
-    // BlockInventory,
-    BlockComponents,
-    Client,
-    Location,
-    BlockTypes,
-    CamelToSnakeCase
-} from '..';
-
-import { Block as IBlock, BlockInventoryComponent, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
+import { BlockInventoryComponent, Block as IBlock, MinecraftBlockTypes, Vector3 } from '@minecraft/server';
+import { Client } from '../client/Client';
+import { BlockComponents, BlockTypes } from '../types/Block';
+import { BlockInventory } from '../inventory/BlockInventory';
+import { BlockType } from './BlockType';
+import { CamelToSnakeCase } from '../types/Formatting';
+import { Permutation } from './Permutation';
 
 export class Block {
     /**
@@ -22,12 +16,6 @@ export class Block {
      */
     protected readonly _IBlock: IBlock;
 
-    /**
-     * BeAPI wrapper object for Minecraft IBlock. Adds a bunch of
-     * abstracted methods to mutate and access props on block easier.
-     * @param client Client reference.
-     * @param IBlock IBlock to wrap.
-     */
     public constructor(client: Client, IBlock: IBlock) {
         this._client = client;
         this._IBlock = IBlock;
@@ -49,59 +37,11 @@ export class Block {
         return this._IBlock.typeId;
     }
 
-    // /**
-    //  * Gets the wrapped Minecraft blocktype.
-    //  * @returns
-    //  */
-    // public getType(): BlockType {
-    //     return new BlockType(this._client, this._IBlock.type);
-    // }
-
-    // /**
-    //  * Sets a wrapped Minecraft blocktype.
-    //  * @param type Wrapped blocktype.
-    //  */
-    // public setType(type: CamelToSnakeCase<BlockTypes> | BlockType): void {
-    //     // If block type.
-    //     if (type instanceof BlockType) {
-    //         // Set type to block type.
-    //         this._IBlock.setType(type.getIBlockType());
-    //         // Else namespaced string.
-    //     } else {
-    //         const blockType = MinecraftBlockTypes[type as BlockTypes];
-    //         this._IBlock.setType(blockType);
-    //     }
-    // }
-
-    /**
-     * Gets the blocks permutation.
-     * @returns
-     */
-    public getPermutation(): BlockPermutation {
-        return this._IBlock.permutation;
-    }
-
-    /**
-     * Sets the block permutation.
-     * @param permutation Block permutation to apply.
-     */
-    public setPermutation(permutation: Permutation): void {
-        this._IBlock.setPermutation(permutation.getIPermutation());
-    }
-
-    // /**
-    //  * Gets the block dimension.
-    //  * @returns
-    //  */
-    // public getDimension(): Dimension {
-    //     return this._client.Iworld.getDimension(this._IBlock.dimension);
-    // }
-
     /**
      * Gets the blocks location.
      * @returns
      */
-    public getLocation(): Location {
+    public getLocation(): Vector3 {
         const pos = this._IBlock.location;
 
         return {
@@ -115,7 +55,7 @@ export class Block {
      * Gets precise location (decimals)
      * @returns
      */
-    public getPreciseLocation(): Location {
+    public getPreciseLocation(): Vector3 {
         const pos = this._IBlock.location;
 
         return {
@@ -123,18 +63,6 @@ export class Block {
             y: pos.y,
             z: pos.z
         };
-    }
-
-    /**
-     * Checks if the block is empty.
-     * @returns
-     */
-    public isEmpty(): boolean {
-        if (!this.getComponent('inventory')) return true;
-
-        const inventory = this._IBlock.getComponent('inventory') as BlockInventoryComponent;
-
-        return inventory.container.emptySlotsCount === inventory.container.size;
     }
 
     /**
@@ -163,14 +91,53 @@ export class Block {
     }
 
     /**
+     * Gets the wrapped Minecraft blocktype.
+     * @returns
+     */
+    public getType(): BlockType {
+        return new BlockType(this._client, this._IBlock.type);
+    }
+
+    /**
+     * Sets a wrapped Minecraft blocktype.
+     * @param type Wrapped blocktype.
+     */
+    public setType(type: CamelToSnakeCase<BlockTypes> | BlockType): void {
+        // If block type.
+        if (type instanceof BlockType) {
+            // Set type to block type.
+            this._IBlock.setType(type.getIBlockType());
+            // Else namespaced string.
+        } else {
+            const blockType = MinecraftBlockTypes[type as BlockTypes];
+            this._IBlock.setType(blockType);
+        }
+    }
+
+    /**
+     * Gets the blocks permutation.
+     * @returns
+     */
+    public getPermutation(): Permutation {
+        return new Permutation(this._client, this._IBlock.permutation);
+    }
+
+    /**
+     * Sets the block permutation.
+     * @param permutation Block permutation to apply.
+     */
+    public setPermutation(permutation: Permutation): void {
+        this._IBlock.setPermutation(permutation.getIPermutation());
+    }
+
+    /**
      * Gets a specific component from the block.
      * @param component Component to get.
      * @returns
      */
-    public getComponent<K extends keyof BlockComponents>(component: K): BlockComponents[K] | undefined {
-        const blockComponent = this._IBlock.getComponent(component);
-        if (!blockComponent) return undefined;
-        return blockComponent as BlockComponents[K];
+    public getComponent<K extends keyof BlockComponents>(component: K): BlockComponents[K] {
+        //@ts-expect-error
+        return this._IBlock.getComponent(component);
     }
 
     /**
@@ -188,13 +155,9 @@ export class Block {
      * Attempts to get the block inventory.
      * @returns can be `undefined`
      */
-    //@ts-expect-error
     public getInventory(): BlockInventory | undefined {
         if (!this.getComponent('inventory')) return;
-        //@ts-expect-error
-        return new BlockInventory(
-            this._client,
-            this._IBlock.getComponent('minecraft:inventory') as BlockInventoryComponent
-        );
+
+        return new BlockInventory(this._client, this._IBlock.getComponent('inventory') as BlockInventoryComponent);
     }
 }

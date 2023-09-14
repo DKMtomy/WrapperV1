@@ -1,4 +1,4 @@
-import type { Client } from '..';
+import type { Client } from '../client/Client';
 import { BlockType as IBlockType, BlockPermutation } from '@minecraft/server';
 
 export class BlockType {
@@ -12,7 +12,7 @@ export class BlockType {
     protected readonly _IBlockType: IBlockType;
 
     /**
-     * BeAPI wrapped Minecraft BlockType for BeAPIs Block counterpart.
+     * CraftedAPI wrapped Minecraft BlockType for BeAPIs Block counterpart.
      * @param client Client reference.
      * @param IBlockType Block type to wrap.
      */

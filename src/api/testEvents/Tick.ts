@@ -1,16 +1,16 @@
 // Normal imports.
 import AbstractEvent from './AbstractEvent';
-import { PlayerJoinAfterEvent, world, Player as IPlayer, PlayerSpawnAfterEvent } from '@minecraft/server';
 
 // Type imports.
 import type { Client } from '../client';
+import { world, system } from '@minecraft/server';
 
 /**
- * CraftedAPI join event. Contains the logic
- * for translating Minecraft event data to CraftedAPI
+ * BeAPI tick event. Contains the logic
+ * for translating Minecraft event data to BeAPI
  * wrapped data.
  */
-export class OnJoin extends AbstractEvent {
+export class Tick extends AbstractEvent {
     // Predefined in AbstractEvent.
     protected readonly _logic = this.__logic.bind(this);
     // Predefined in AbstractEvent.
@@ -19,17 +19,22 @@ export class OnJoin extends AbstractEvent {
     protected _registered = false;
 
     // Predefined in AbstractEvent.
-    public readonly name = 'OnJoin';
+    public readonly name = 'Tick';
 
     // Predefined in AbstractEvent.
-    public readonly iName = 'playerSpawn';
+    public readonly iName = 'custom';
 
     // Predefined in AbstractEvent.
     public readonly alwaysCancel = false;
 
+    private interval: number;
+
+    // Current tick of the server.
+    protected currentTick = 0;
+
     /**
-     * CraftedAPI join event. Contains the logic
-     * for translating Minecraft event data to CraftedAPI
+     * BeAPI tick event. Contains the logic
+     * for translating Minecraft event data to BeAPI
      * wrapped data.
      * @param client Client referece.
      */
@@ -44,7 +49,9 @@ export class OnJoin extends AbstractEvent {
         if (!this._registered) {
             // Subscribe to Minecraft world event with IName
             // And use bound _logic for the callback.
-            world.afterEvents[this.iName].subscribe(this._logic);
+            this.interval = system.runInterval(() => {
+                this._logic();
+            }, 0);
             // Set registered to true so this cannot be called
             // Again before off being called.
             this._registered = true;
@@ -57,7 +64,7 @@ export class OnJoin extends AbstractEvent {
         if (this._registered) {
             // Remove Minecraft event listener on IName
             // With bound _logic callback.
-            world.afterEvents[this.iName].unsubscribe(this._logic);
+            system.clearRun(this.interval);
             // Set registered to false so this cannot be called
             // Again before on being called.
             this._registered = false;
@@ -65,12 +72,20 @@ export class OnJoin extends AbstractEvent {
     }
 
     // Predefined in AbstractEvent.
-    protected __logic(arg: PlayerSpawnAfterEvent): void {
-        // Create a player from the IPlayer object.
-        const player = this._client.players.create(arg.player);
-        // Add the player to player manager.
-        this._client.players.add(player);
-        // Emit the new player.
-        this._client.emit(this.name, player);
+    protected __logic(): void {
+        // Set the current tick.
+        this.currentTick = system.currentTick;
+
+        // Emit the event through client.
+        this._client.emit(this.name, {
+            currentTick: system.currentTick
+        });
+    }
+
+    /**
+     * Get the current tick of the world
+     */
+    public getCurrentTick(): number {
+        return this.currentTick;
     }
 }

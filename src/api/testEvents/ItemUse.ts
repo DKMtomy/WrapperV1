@@ -6,10 +6,11 @@ import { ChatSendBeforeEvent, world, Player as IPlayer, ItemUseBeforeEvent } fro
 // Type imports.
 import type { Client } from '../client';
 import { Player } from '../player/index';
+import { Item } from '../item/index';
 
 /**
- * BeAPI item use event. Contains the logic
- * for translating Minecraft event data to BeAPI
+ * CraftedAPI item use event. Contains the logic
+ * for translating Minecraft event data to CraftedAPI
  * wrapped data.
  */
 export class ItemUse extends AbstractEvent {
@@ -30,8 +31,8 @@ export class ItemUse extends AbstractEvent {
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI item use event. Contains the logic
-     * for translating Minecraft event data to BeAPI
+     * CraftedAPI item use event. Contains the logic
+     * for translating Minecraft event data to CraftedAPI
      * wrapped data.
      * @param client Client referece.
      */
@@ -71,7 +72,7 @@ export class ItemUse extends AbstractEvent {
         // Emit use item event stuffs.
         this._client.emit(this.name, {
             source: arg.source instanceof IPlayer ? new Player(arg.source, this._client) : undefined,
-            item: arg.itemStack,
+            item: new Item(this._client, arg.itemStack),
             cancel() {
                 arg.cancel = true;
             }

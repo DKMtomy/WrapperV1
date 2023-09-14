@@ -1,2 +1,2 @@
-//export * from './Dimension'
-// export * from './WorldManager'
+export * from './Dimension'
+export * from './WorldManager'

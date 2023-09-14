@@ -2,14 +2,13 @@
 import AbstractEvent from './AbstractEvent';
 import { BlockPlaceAfterEvent, world } from '@minecraft/server';
 
-import { Block } from '..';
-
 // Type imports.
 import type { Client } from '../client';
+import { Block } from '../block/Block';
 
 /**
- * BeAPI block created event. Contains the logic
- * for translating Minecraft event data to BeAPI
+ * CraftedAPI block created event. Contains the logic
+ * for translating Minecraft event data to CraftedAPI
  * wrapped data.
  */
 export class BlockCreated extends AbstractEvent {
@@ -30,8 +29,8 @@ export class BlockCreated extends AbstractEvent {
     public readonly alwaysCancel = false;
 
     /**
-     * BeAPI block created event. Contains the logic
-     * for translating Minecraft event data to BeAPI
+     * CraftedAPI block created event. Contains the logic
+     * for translating Minecraft event data to CraftedAPI
      * wrapped data.
      * @param client Client referece.
      */
@@ -70,25 +69,16 @@ export class BlockCreated extends AbstractEvent {
     protected __logic(arg: BlockPlaceAfterEvent): void {
         // Attempt to get the player who created the block.
         const player = this._client.players.getByIPlayer(arg.player);
-
-        console.warn(player.nameTag)
         // If not player could be found return.
         if (!player) return;
 
         // Emit this event on client using name defined above.
         this._client.emit(this.name, {
-            player,
-            block: arg.block,
+            player: player,
+            block: new Block(this._client, arg.block),
             dimension: arg.dimension,
             cancel() {
-                // // TODO: change this to a block permutation instead.
-                // const dim = arg.dimension;
-                // const pos = arg.block.location;
-                // if (player.getGamemode() === 'creative') {
-                //     dim.runCommand(`setblock ${pos.x} ${pos.y} ${pos.z} air`);
-                // } else {
-                //     dim.runCommand(`setblock ${pos.x} ${pos.y} ${pos.z} air 0 destroy`);
-                // }
+                
             }
         });
     }
