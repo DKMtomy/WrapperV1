@@ -52,7 +52,7 @@ export class Player extends Entity {
      * @param IPlayer The IPlayer object to wrap.
      */
     constructor(IPlayer: IPlayer, client?: Client) {
-        super(IPlayer);
+        super(IPlayer, client);
         this._IPlayer = IPlayer;
         this._client = client;
     }

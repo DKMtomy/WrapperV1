@@ -19,7 +19,7 @@ import {
     Container
 } from '@minecraft/server';
 
-import { Vec3 } from '../index';
+import { Client, Vec3 } from '../index';
 
 const { lerp, add } = Vector;
 
@@ -31,8 +31,11 @@ export class Entity {
      */
     protected readonly _IEntity: IEntity;
 
-    constructor(IEntity: IEntity) {
+    protected readonly _client: Client;
+
+    constructor(IEntity: IEntity, client: Client) {
         this._IEntity = IEntity;
+        this._client = client;
     }
 
     public destroy(): void {

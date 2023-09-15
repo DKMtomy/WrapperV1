@@ -1,8 +1,8 @@
-import { Dimension, Player as IPlayer, ItemStack, Block as IBlock } from '@minecraft/server';
-import { BlockCreated } from '../testEvents/BlockCreated';
+import { Dimension, ScriptEventSource } from '@minecraft/server';
 import { Block } from '../block/Block';
 import { Player } from '../player/Player';
 import { Item } from '../item/item';
+import { Entity } from '../entity/Entity';
 
 export interface ClientEvents {
     OnChat: [OnChatEvent];
@@ -10,6 +10,9 @@ export interface ClientEvents {
     BlockCreated: [BlockCreatedEvent];
     OnJoin: [Player];
     Tick: [TickEvent];
+    scriptEventReceived: [scriptEventReceiveEvent];
+    Jump: [Entity | Player | undefined];
+    Land: [Entity | Player | undefined];
 }
 
 export interface OnChatEvent {
@@ -25,6 +28,41 @@ export interface OnChatEvent {
      * Stop event from occuring.
      */
     cancel: CancelMethod;
+}
+
+export interface scriptEventReceiveEvent {
+    /**
+     * Identifier of this ScriptEvent command message.
+     */
+    id: string;
+    /**
+     * If this command was initiated via an NPC, returns the entity
+     * that initiated the NPC dialogue.
+     *
+     */
+    initiator: Entity;
+    /**
+     * Source block if this command was triggered via a block
+     * (e.g., a commandblock.)
+     *
+     */
+    sourceBlock: Block;
+    /**
+     * Optional additional data passed in with the script event
+     * command.
+     */
+    message: string;
+    /**
+     * Returns the type of source that fired this command.
+     *
+     */
+    sourceType: ScriptEventSource;
+    /**
+     * Source entity if this command was triggered by an entity
+     * (e.g., a NPC).
+     *
+     */
+    sourceEntity: Entity | Player | undefined;
 }
 
 /**

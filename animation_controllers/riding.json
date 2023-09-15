@@ -1,0 +1,25 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.riding": {
+      "states": {
+        "default": {
+          "transitions": [
+            {
+              "scroll": "query.is_riding"
+            }
+          ],
+          "on_exit": ["/scriptevent CraftedAPI:on_ride"]
+        },
+        "scroll": {
+          "transitions": [
+            {
+              "default": "!query.is_riding"
+            }
+          ],
+          "on_exit": ["/scriptevent CraftedAPI:off_ride"]
+        }
+      }
+    }
+  }
+}

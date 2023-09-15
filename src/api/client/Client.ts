@@ -1,38 +1,16 @@
 import {
-    Effect,
-    EffectType,
     World as IWorld,
-    Entity,
-    EntityHealthComponent,
-    EntityInventoryComponent,
-    Vector,
-    CommandResult,
-    Vector3,
-    Dimension,
     world as MinecraftWorld,
-    EntityEquipmentInventoryComponent,
-    EquipmentSlot,
-    ContainerSlot,
-    Vector2,
-    ItemStack,
-    ItemComponent,
     WorldBeforeEvents,
     WorldAfterEvents,
-    Scoreboard,
-    EntityQueryOptions,
-    MusicOptions,
-    WorldSoundOptions,
-    RawMessage,
-    TimeOfDay,
     system
 } from '@minecraft/server';
 
 import { CommandManager } from '../commands/CommandManager';
 import { ClientEvents, Awaitable, DimensionNamespace, ServerCommandResponse } from '../types/index';
 import { EventEmitter } from '../polyfill/EventEmitter';
-import AbstractEvent from '../testEvents/AbstractEvent';
-import { OnChat } from '../testEvents/OnChat';
-import { events } from '../testEvents/index';
+import AbstractEvent from '../events/AbstractEvent';
+import { events } from '../events/index';
 import { PlayerManager } from '../player/PlayerManager';
 import { WorldManager } from '../world/WorldManager';
 
@@ -141,7 +119,7 @@ export class Client extends EventEmitter {
      */
     protected deprecated(name: string): void {
         return console.warn(
-            `[CraftedAPI]: Event "${name}" appears be deprecated, skipping registration. Please report this issue here: https://github.com/MCBE-Utilities/CraftedAPI/issues`
+            `[CraftedAPI]: Event "${name}" appears be deprecated`
         );
     }
 
@@ -157,6 +135,8 @@ export class Client extends EventEmitter {
         return (
             Object.keys(WorldBeforeEvents.prototype).includes(name) ||
             Object.keys(WorldAfterEvents.prototype).includes(name) ||
+            Object.keys(system.beforeEvents).includes(name) ||
+            Object.keys(system.afterEvents).includes(name) ||
             false
         );
     }

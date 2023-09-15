@@ -1,6 +1,6 @@
 // Normal imports.
 import AbstractEvent from './AbstractEvent';
-import { PlayerJoinAfterEvent, world, Player as IPlayer, PlayerSpawnAfterEvent } from '@minecraft/server';
+import { world, PlayerSpawnAfterEvent } from '@minecraft/server';
 
 // Type imports.
 import type { Client } from '../client';
