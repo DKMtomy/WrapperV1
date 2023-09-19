@@ -27,6 +27,7 @@ client.on('playerUseItem', event => {
     client.executeCommand(`say ${event.source.name} used ${event.item.getId()}`);
 });
 
+
 client.commands.register('enchant', 'add an enchantment to the item you are holding', sender => {
     const item = new Item(client, sender.mainhandItem);
 
@@ -53,22 +54,22 @@ CraftedAPI:stopped_sprinting
 CraftedAPI:on_swim
 CraftedAPI:off_swim
 CraftedAPI:swing
+CraftedAPI:gliding
+CraftedAPI:off_gliding
 */
-
-// system.afterEvents.scriptEventReceive.subscribe(data => {
-//     if (!(data.sourceEntity instanceof IPlayer)) return;
-
-//     const player = new Player(data.sourceEntity, client);
-//     const handler = eventHandlers[data.id];
-
-//     if (handler) {
-//         handler(player);
-//     }
-// });
 
 
 client.on("scriptEventReceived", event => {
-    // console.log(event.id)
+    console.log(event.id)
+    console.log(event.message)
+})
+
+client.on('StartedMoving', event => {
+    console.log('started moving')
+})
+
+client.on('StoppedMoving', event => {
+    console.log('stopped moving')
 })
 
 client.on('Jump', event => {

@@ -19,7 +19,8 @@
           "riding",
           "sprint",
           "swim",
-          "death"
+          "death",
+          "glide"
         ]
       },
       "animations": {
@@ -34,7 +35,8 @@
         "riding": "controller.animation.riding",
         "sprint": "controller.animation.sprint",
         "swim": "controller.animation.swim",
-        "death": "controller.animation.death"
+        "death": "controller.animation.death",
+        "glide": "controller.animation.glide"
       }
     },
     "component_groups": {

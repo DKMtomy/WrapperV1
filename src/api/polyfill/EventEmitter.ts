@@ -1,62 +1,57 @@
-// EventEmitter Polyfill by [Nobu](https://github.com/nobu-sh)
+export interface IEventEmitter {
+    addListener(event: string, listener: CallableFunction): void;
 
-/**
- * 0.8 to 1 replica of NodeJS EventEmitter.
- * It fundamentally works the same. Some methods
- * may just be named slightly different.
- */
-export class EventEmitter {
+    removeListener(event: string, listener: CallableFunction): void;
+
+    removeListeners(event: string): void;
+
+    removeAllListeners(): void;
+
+    envokeEvent(event: string, ...args: unknown[]): void;
+
+    listeners(event: string): CallableFunction[] | undefined;
+
+    listenerCount(event: string): number;
+
+    getMaxListeners(): number;
+
+    setMaxListeners(n: number): void;
+
+    on(event: string, listener: CallableFunction): void;
+
+    off(event: string, listener: CallableFunction): void;
+
+    emit(event: string, ...args: unknown[]): void;
+
+    once(event: string, listener: CallableFunction): void;
+}
+
+export class EventEmitter implements IEventEmitter {
     protected readonly _listeners = new Map<string, CallableFunction[]>();
     protected max: number;
 
-    /**
-     * 0.8 to 1 replica of NodeJS EventEmitter.
-     * It fundamentally works the same. Some methods
-     * may just be named slightly different.
-     * @param max Max listeners before mem leak warnings.
-     */
-    constructor(_max_ = 50) {
-        this.max = _max_;
+    constructor(max = 50) {
+        this.max = max;
     }
 
-    // Override toString/name Methods
-    public static get [Symbol.toStringTag](): string {
-        return '[undefined EventEmitter]';
-    }
-
-    public static get [Symbol.name](): string {
-        return 'EventEmitter';
-    }
-
-    public get [Symbol.toStringTag](): string {
-        return '[object EventEmitter]';
-    }
-
-    public get [Symbol.name](): string {
-        return 'EventEmitter';
-    }
-
-    public static toString(): string {
-        return '[undefined EventEmitter]';
-    }
-
-    public toString(): string {
-        return '[object EventEmitter]';
-    }
-
-    // Primary Methods
     public addListener(event: string, listener: CallableFunction): void {
         if (this._listeners.size >= this.max) {
             console.warn(
                 `warning: possible EventEmitter memory leak detected. ${this._listeners.size} listeners registered.`
             );
         }
-        this._listeners.set(event, [...(this._listeners.get(event) ?? []), listener]);
+        const listeners = this._listeners.get(event) ?? [];
+        this._listeners.set(event, [...listeners, listener]);
     }
 
     public removeListener(event: string, listener: CallableFunction): void {
         const listeners = this._listeners.get(event);
-        listeners?.splice(listeners?.indexOf(listener));
+        if (listeners) {
+            const index = listeners.indexOf(listener);
+            if (index !== -1) {
+                listeners.splice(index, 1);
+            }
+        }
     }
 
     public removeListeners(event: string): void {
@@ -68,9 +63,12 @@ export class EventEmitter {
     }
 
     public envokeEvent(event: string, ...args: unknown[]): void {
-        this._listeners.get(event)?.forEach(listener => {
-            listener(...args);
-        });
+        const listeners = this._listeners.get(event);
+        if (listeners) {
+            for (const listener of listeners) {
+                listener(...args);
+            }
+        }
     }
 
     public listeners(event: string): CallableFunction[] | undefined {
@@ -78,24 +76,27 @@ export class EventEmitter {
     }
 
     public listenerCount(event: string): number {
-        return this._listeners.get(event)?.length ?? 0;
+        const listeners = this._listeners.get(event);
+        return listeners ? listeners.length : 0;
     }
 
-    public getMaxListeners = () => this.max;
+    public getMaxListeners(): number {
+        return this.max;
+    }
+
     public setMaxListeners(n: number): void {
         this.max = n;
     }
 
-    // Abstracted Methods
-    public on(event: string, listener: CallableFunction) {
+    public on(event: string, listener: CallableFunction): void {
         this.addListener(event, listener);
     }
 
-    public off(event: string, listener: CallableFunction) {
+    public off(event: string, listener: CallableFunction): void {
         this.removeListener(event, listener);
     }
 
-    public emit(event: string, ...args: unknown[]) {
+    public emit(event: string, ...args: unknown[]): void {
         this.envokeEvent(event, ...args);
     }
 

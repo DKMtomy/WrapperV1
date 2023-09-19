@@ -13,6 +13,8 @@ export interface ClientEvents {
     scriptEventReceived: [scriptEventReceiveEvent];
     Jump: [Entity | Player | undefined];
     Land: [Entity | Player | undefined];
+    StartedMoving: [Entity | Player | undefined];
+    StoppedMoving: [Entity | Player | undefined];
 }
 
 export interface OnChatEvent {
