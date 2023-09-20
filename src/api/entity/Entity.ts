@@ -9,7 +9,7 @@ import {
     world,
     Vector3,
     Dimension,
-    EntityEquipmentInventoryComponent,
+    EntityEquippableComponent as EntityEquipmentInventoryComponent,
     EquipmentSlot,
     ContainerSlot,
     Vector2,
@@ -23,7 +23,7 @@ import { Client, Vec3 } from '../index';
 
 const { lerp, add } = Vector;
 
-type PropertyValue = boolean | number | string | undefined;
+type PropertyValue = string | number | boolean | Vector3
 
 export class Entity {
     /**
@@ -240,7 +240,7 @@ export class Entity {
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
 
-        return selectedSlot.getEquipmentSlot(EquipmentSlot.mainhand);
+        return selectedSlot.getEquipmentSlot(EquipmentSlot.Mainhand);
     }
 
     /**
@@ -452,7 +452,7 @@ export class Entity {
      * @returns {ItemStack} The item in the main hand of the entity.
      */
     public get mainhandItem(): ItemStack {
-        return this.equipment.getEquipment(EquipmentSlot.mainhand);
+        return this.equipment.getEquipment(EquipmentSlot.Mainhand);
     }
 
     /**
@@ -464,7 +464,7 @@ export class Entity {
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
 
-        inv.setEquipment(EquipmentSlot.mainhand, item instanceof ContainerSlot ? item.getItem() : item);
+        inv.setEquipment(EquipmentSlot.Mainhand, item instanceof ContainerSlot ? item.getItem() : item);
     }
 
     /**
@@ -476,7 +476,7 @@ export class Entity {
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
 
-        return inv.getEquipment(EquipmentSlot.offhand);
+        return inv.getEquipment(EquipmentSlot.Offhand);
     }
 
     /**
@@ -488,7 +488,7 @@ export class Entity {
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
 
-        inv.setEquipment(EquipmentSlot.offhand, item instanceof ContainerSlot ? item.getItem() : item);
+        inv.setEquipment(EquipmentSlot.Offhand, item instanceof ContainerSlot ? item.getItem() : item);
     }
 
     /**
@@ -500,7 +500,7 @@ export class Entity {
             EntityEquipmentInventoryComponent.componentId
         ) as EntityEquipmentInventoryComponent;
 
-        return inv.getEquipmentSlot(EquipmentSlot.offhand);
+        return inv.getEquipmentSlot(EquipmentSlot.Offhand);
     }
 
     /**

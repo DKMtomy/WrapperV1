@@ -1,4 +1,4 @@
-import { BlockInventoryComponent, Block as IBlock, MinecraftBlockTypes, Vector3 } from '@minecraft/server';
+import { BlockInventoryComponent, Block as IBlock, BlockTypes as MinecraftBlockTypes, Vector3 } from '@minecraft/server';
 import { Client } from '../client/Client';
 import { BlockComponents, BlockTypes } from '../types/Block';
 import { BlockInventory } from '../inventory/BlockInventory';
@@ -109,7 +109,7 @@ export class Block {
             this._IBlock.setType(type.getIBlockType());
             // Else namespaced string.
         } else {
-            const blockType = MinecraftBlockTypes[type as BlockTypes];
+            const blockType = MinecraftBlockTypes.get(type);
             this._IBlock.setType(blockType);
         }
     }

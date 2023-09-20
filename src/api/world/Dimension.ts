@@ -4,7 +4,7 @@ import {
     Vector3,
     ExplosionOptions as IExplosionOptions,
     MolangVariableMap,
-    Color
+    RGBA
 } from '@minecraft/server';
 import { Client } from '../client/Client';
 import { DimensionNamespace, ExplosionOptions } from '../types/Dimension';

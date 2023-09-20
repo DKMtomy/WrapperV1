@@ -59,25 +59,29 @@ CraftedAPI:off_gliding
 */
 
 
-client.on("scriptEventReceived", event => {
-    console.log(event.id)
-    console.log(event.message)
-})
+// client.on("scriptEventReceived", event => {
+//     console.log(event.id)
+//     console.log(event.message)
+// })
 
-client.on('StartedMoving', event => {
-    console.log('started moving')
-})
+// client.on('StartedMoving', event => {
+//     console.log('started moving')
+// })
 
-client.on('StoppedMoving', event => {
-    console.log('stopped moving')
-})
+// client.on('StoppedMoving', event => {
+//     console.log('stopped moving')
+// })
 
-client.on('Jump', event => {
-    console.log('jumped')
-})
+// client.on('Jump', event => {
+//     console.log('jumped')
+// })
 
-client.on('Land', event => {
-    console.log('landed')
+// client.on('Land', event => {
+//     console.log('landed')
+// })
+
+client.on("BlockCreated", event => {
+    // event.cancel()
 })
 
 client.commands.register(
@@ -92,10 +96,6 @@ client.commands.register(
         sender.sendMessage(`${args.string} ${args.optionalNumber} ${args.optionalBoolean}`);
     }
 );
-
-client.on('BlockCreated', event => {
-    console.log(event.block.isWaterLogged());
-});
 
 client.on('OnJoin', event => {
     event.executeCommand('say hi');

@@ -1,10 +1,11 @@
 // Regular imports.
 import AbstractEvent from './AbstractEvent';
-import { BlockPlaceAfterEvent, world } from '@minecraft/server';
+import { PlayerPlaceBlockBeforeEvent, world } from '@minecraft/server';
 
 // Type imports.
 import type { Client } from '../client';
 import { Block } from '../block/Block';
+import { Item } from '../item/index';
 
 /**
  * CraftedAPI block created event. Contains the logic
@@ -23,7 +24,7 @@ export class BlockCreated extends AbstractEvent {
     public readonly name = 'BlockCreated';
 
     // Predefined in AbstractEvent.
-    public readonly iName = 'blockPlace';
+    public readonly iName = 'playerPlaceBlock';
 
     // Predefined in AbstractEvent.
     public readonly alwaysCancel = false;
@@ -45,7 +46,7 @@ export class BlockCreated extends AbstractEvent {
         if (!this._registered) {
             // Subscribe to Minecraft world event with IName
             // And use bound _logic for the callback.
-            world.afterEvents[this.iName].subscribe(this._logic);
+            world.beforeEvents[this.iName].subscribe(this._logic);
             // Set registered to true so this cannot be called
             // Again before off being called.
             this._registered = true;
@@ -58,7 +59,7 @@ export class BlockCreated extends AbstractEvent {
         if (this._registered) {
             // Remove Minecraft event listener on IName
             // With bound _logic callback.
-            world.afterEvents[this.iName].unsubscribe(this._logic);
+            world.beforeEvents[this.iName].unsubscribe(this._logic);
             // Set registered to false so this cannot be called
             // Again before on being called.
             this._registered = false;
@@ -66,7 +67,7 @@ export class BlockCreated extends AbstractEvent {
     }
 
     // Predefined in AbstractEvent.
-    protected __logic(arg: BlockPlaceAfterEvent): void {
+    protected __logic(arg: PlayerPlaceBlockBeforeEvent): void {
         // Attempt to get the player who created the block.
         const player = this._client.players.getByIPlayer(arg.player);
         // If not player could be found return.
@@ -76,9 +77,12 @@ export class BlockCreated extends AbstractEvent {
         this._client.emit(this.name, {
             player: player,
             block: new Block(this._client, arg.block),
+            face: arg.face,
+            faceLocation: arg.faceLocation,
+            item: new Item(this._client, arg.itemStack),
             dimension: arg.dimension,
             cancel() {
-                
+                arg.cancel = true
             }
         });
     }

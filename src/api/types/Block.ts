@@ -8,7 +8,7 @@ import {
     BlockSignComponent,
     BlockSnowContainerComponent,
     BlockWaterContainerComponent,
-    MinecraftBlockTypes
+    BlockTypes as MinecraftBlockTypes
 } from '@minecraft/server';
 
 export interface BlockComponents {

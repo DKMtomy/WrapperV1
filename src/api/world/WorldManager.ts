@@ -5,7 +5,7 @@ import {
     world,
     Dimension as IDimension,
     ItemStack,
-    MinecraftItemTypes,
+    ItemTypes as MinecraftItemTypes,
     WorldSoundOptions as ISoundOptions,
     MusicOptions as IMusicOptions
 } from '@minecraft/server';

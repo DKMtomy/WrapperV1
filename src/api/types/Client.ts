@@ -1,4 +1,4 @@
-import { Dimension, ScriptEventSource } from '@minecraft/server';
+import { Dimension, Direction, ScriptEventSource, Vector3 } from '@minecraft/server';
 import { Block } from '../block/Block';
 import { Player } from '../player/Player';
 import { Item } from '../item/item';
@@ -75,6 +75,21 @@ export interface BlockCreatedEvent {
      * Player who placed the block.
      */
     player: Player;
+    /**
+     * Item used to break the block.
+     */
+    item: Item;
+    /**
+     * The face of the block that the new block is being placed on.
+     *
+     */
+    face: Direction;
+    /**
+     * Location relative to the bottom north-west corner of the
+     * block where the new block is being placed onto.
+     *
+     */
+    faceLocation: Vector3;
     /**
      * Block that was placed.
      */

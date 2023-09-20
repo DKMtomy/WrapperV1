@@ -8,7 +8,7 @@ import {
     world,
     Vector3,
     Dimension,
-    EntityEquipmentInventoryComponent,
+    EntityEquippableComponent as EntityEquipmentInventoryComponent,
     EquipmentSlot,
     ContainerSlot,
     Vector2,
@@ -230,7 +230,7 @@ export class Player extends Entity {
         return this._IPlayer.getEntitiesFromViewDirection(options);
     }
 
-    public getDynamicProperty(identifier: string): boolean | number | string | undefined {
+    public getDynamicProperty(identifier: string):  boolean | number | string | Vector3 | undefined {
         return this._IPlayer.getDynamicProperty(identifier);
     }
 

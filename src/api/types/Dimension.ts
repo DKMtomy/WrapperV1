@@ -1,4 +1,4 @@
-import type { Color, Vector } from '@minecraft/server';
+import type { RGBA, Vector } from '@minecraft/server';
 import type { Entity } from '..';
 
 /**
@@ -14,7 +14,7 @@ export type DimensionNamespace = 'minecraft:overworld' | 'minecraft:nether' | 'm
 export interface ParticleOptions {
     id: string;
     type: 'RGB' | 'RGBA' | 'SpeedAndDirection' | 'Vector';
-    color?: Color;
+    color?: RGBA;
     speed?: number;
     vector?: Vector;
 }
